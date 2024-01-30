@@ -57,9 +57,9 @@ end
 unb=0.5*(nb12+nb34);
 nd=1;
 for i=1:3
-    if irebar4(i)~=irebar4(i+1)
+    if irebar4(i)~=irebar4(i+1) && nb4(i+1)~=0
         nd=nd+1;
     end
 end
 BS=unb^wunb+1/nd^wnd;
-CFA=BS/2;    
+CFA=BS/2;  
