@@ -31,6 +31,8 @@ function [eleMec]=strElasConcBarsRecBlock(x,fcu,h,b,hrec,...
 %
 %         Es:           is the Young's modulus of stel
 %
+%         hrec:         is the vertical concrete cover
+%
 %------------------------------------------------------------------------
 % LAST MODIFIED: L.F.Veduzco    2025-02-05
 % Copyright (c)  School of Engineering
