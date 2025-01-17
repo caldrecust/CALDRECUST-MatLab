@@ -5,9 +5,6 @@
 %    reinforced rectangular beam cross-section.
 %
 %----------------------------------------------------------------
-% CREATED:       L.F.Veduzco    2023-03-18
-%                Faculty of Engineering
-%                Autonomous University of Queretaro
 %
 % LAST MODIFIED: L.F.Veduzco    2023-07-03
 % Copyright (c)  School of Engineering
@@ -18,59 +15,59 @@ clc
 clear all
 
 %% Geometry
-b=15; % cross-section width
-h=30; % cross-section height
+b=300; % cross-section width
+h=550; % cross-section height
 
-b_rec=5; % concrete cover on each direction
-h_rec=5;
+hrec=50; % concrete cover on each direction
 
-d=h-h_rec; % effective cross-section height
+d=h-hrec; % effective cross-section height
 
 %% Materials
-fc=250; % concrete's compressive strength
-factor_fc=0.85; % reduction factor for the f'c
-fdpc=factor_fc*fc; % reduced f'c
-E=2e6; % Modulus of elasticity of the reinforcing steel
-fy=4200; % Yield stress of the reinforcing steel
+fcu=30; % concrete's compressive strength
+factor_fc=0.45; % reduction factor for the f'c
+fdpc=factor_fc*fcu; % reduced f'c
+fy=500; % Yield stress of steel reinforcement (N/mm2)
+E=fy/0.0021; % Modulus of elasticity of the reinforcing steel
 
-%% Additional parameters
-duct=3; % ductility demand level
-
-%% Loads
-load_conditions=[1 -0.02e5]; % [n-load, Mu] (Kg-cm)
+%% Load conditions
+load_conditions=[1 249.9e6]; % KN-mm
 
 %% Rebar data
-% Commercially available rebar diameters
-                %type diam  
-rebarAvailable=[3 3/8*2.54;
-                4 4/8*2.54;
-                5 5/8*2.54;
-                6 6/8*2.54;
-                8 8/8*2.54;
-                9 9/8*2.54;
-                10 10/8*2.54;
-                12 12/8*2.54];
+% Database of the commercially available rebar
+rebarAvailable=[6
+                8
+                10
+                12
+                16
+                20
+                25
+                32
+                40];
             
 % Distribution of rebars over the cross-section
-dispositionRebar=[-2.5 10;
-                    2.5 10;
-                    -2.5 -10;
-                    2.5 -10];
+dispositionRebar=[-75 -200;                   
+                    -25 -200;
+                    25 -200
+                    75 -200];
                 
-RebarIndexTen=[1;1]; % rebar diameters to use for the reinforcement
+RebarIndexTen=[7;6;6;7]; % rebar diameters to use for the reinforcement
                     % in tension (indices from the "rebarAvailable" array)
                     
-RebarIndexCom=[1;1]; % rebar diameters to use for the reinforcement
+RebarIndexCom=[]; % rebar diameters to use for the reinforcement
                   % in compression (indices from the "rebarAvailable" array)
 
 %% Additional design information of interest
-ast=sum(rebarAvailable(RebarIndexTen,2).^2.*pi./4);
+ast=sum(rebarAvailable(RebarIndexTen,1).^2.*pi./4);
 
 astotal=ast % Total rebar area
 rho=astotal/(b*d) % Total percentage area
+
+amin=0.003*b*d % Min allowed rebar area by code
 amax=0.025*b*d % Max allowed rebar area by code
 
 %% Structural efficiency
 [maxef,Mrv,c]=EfcriticalRebarbeams(load_conditions,b,E,fdpc,RebarIndexTen,...
-    RebarIndexCom,rebarAvailable,d,h_rec,0.85,dispositionRebar)
+    RebarIndexCom,rebarAvailable,d,hrec,0.9,dispositionRebar)
 
+beamReinforcedSection(h,b,rebarAvailable,dispositionRebar,...
+                                RebarIndexCom,RebarIndexTen)

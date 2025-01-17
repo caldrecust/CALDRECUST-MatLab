@@ -15,45 +15,59 @@ clear all
 
 %% Geometry
 
-bp=20; % web width (cm) 
-ht=30; % total height (cm)
-ba=60; % flange width (cm) 
-ha=12; % flange height or thickness (cm)
-span=500; % cm
+bw=200; % web width (mm) 
 
-cover=3; % lateral concrete cover
+ht=500; % total height (mm)
+b=600; % flange width (mm) 
+hf=100; % flange height or thickness (mm)
+span=500; % mm
+
+cover=50; % concrete cover (mm)
+d1=50; 
+d2=ht-cover;
 
 %% Materials
-fc=250; % Kg/cm2
-fy=4200; % Yield stress of steel reinforcement (Kg/cm2)
+fcu=30; % N/mm2
+fy=500; % Yield stress of steel reinforcement (N/mm2)
 
-fdpc=fc*0.85; % reduced f'c
-beta1=0.85;
+fdpc=fcu*0.45; % reduced f'c
+beta1=0.9;
 
 %% Load conditions
-load_conditions=[1 700000.0];
+load_conditions=[1 249e6]; % N-mm
 
 %% Rebar data
 % Database of the commercially available rebar
-rebarAvailable=[3 3/8*2.54;
-                4 4/8.*2.54;
-                5 5/8*2.54;
-                6 6/8*2.54;
-                8 8/8*2.54;
-                9 9/8*2.54;
-                10 10/8*2.54;
-                12 12/8*2.54];
+rebarAvailable=[6
+                8
+                10
+                12
+                16
+                20
+                25
+                32
+                40];
             
 % Rebar coordinates
-dispositionRebar=[-7 -12;
-                   0 -12;
-                   7 -12];
-rebarType=[4;4;4];
+dispositionRebar=[-50 -200;
+                   -25 -200;
+                   25 -200;
+                   50 -200];
+               
+rebarType=[7;7;7;7]; % index of the rebar diameter to use from the 
+                    % database table
             
-As=sum(rebarAvailable(rebarType,2).^2*pi./4);
+%% Additional design information of interest
+As=sum(rebarAvailable(rebarType,1).^2*pi./4)
+rho=As/(bw*d2) % Total percentage area
+
+amin=0.003*bw*d2 % Min allowed rebar area by code
+amax=0.025*bw*d2 % Max allowed rebar area by code
 
 %% Analysis of efficiency
-[Eff,Mr,cx]=EfRebarTBeams(load_conditions,bp,ht,ba,ha,span,fdpc,...
+[Eff,Mr,cx]=EfRebarTBeams(load_conditions,bw,ht,b,hf,span,fdpc,fy,...
                            rebarType,rebarAvailable,cover,beta1,...
                            dispositionRebar)
                        
+TbeamReinforcedSection(bw,ht,b,hf,dispositionRebar,rebarType,...
+                                [],rebarAvailable);
