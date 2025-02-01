@@ -1,4 +1,4 @@
-function plot3layerBeamBar3sec(b,h,distRebarLeft,ListRebarDiamLeft,...
+function plotBeamBar3sec(b,h,distRebarLeft,ListRebarDiamLeft,...
          distRebarMid,ListRebarDiamMid,distRebarRight,ListRebarDiamRight)
 
 CoordCorners=[-0.5*b, 0.5*h;
@@ -97,64 +97,64 @@ plot(x,y,'k -','linewidth',1)
 hold on
 xlabel('x´')
 ylabel('y´')
-title('Rectangular reinforced beam (Left section)')
+title({'Rectangular reinforced beam';'Left section'})
 legend('Beam´s boundaries')
 axis([-(b+10) b+10 -(h+10) h+10])
 hold on
 
 if isempty(t1)~=1
-    figure(4)
     subplot(1,3,1)
-    plot(dispVar1x,dispVar1y,'r o','linewidth',1,'MarkerFaceColor','red',...
-        'DisplayName',strcat('Bar Diam',num2str(6)));
+    figure(4)
+    plot(dispVar1x,dispVar1y,'o','MarkerEdgeColor','[1 0 0]','MarkerFaceColor','[1 0 0]',...
+        'DisplayName',strcat('Bar Diam: ',num2str(6)));
 end
 if isempty(t2)~=1
-    figure(4)
     subplot(1,3,1)
-    plot(dispVar2x,dispVar2y,'b o','linewidth',1,'MarkerFaceColor','blue',...
-        'DisplayName',strcat('Bar Diam',num2str(8)));
+    figure(4)
+    plot(dispVar2x,dispVar2y,'o','MarkerEdgeColor','[0 0 1]','MarkerFaceColor','[0 0 1]',...
+        'DisplayName',strcat('Bar Diam: ',num2str(8)));
 end
 if isempty(t3)~=1
-    figure(4)
     subplot(1,3,1)
-    plot(dispVar3x,dispVar3y,'o','linewidth',1,'MarkerFaceColor',...
-        '[0.05 0.205 0.05]','DisplayName',strcat('Bar Diam',num2str(10)));
+    figure(4)
+    plot(dispVar3x,dispVar3y,'o','MarkerEdgeColor','[0.4940 0.1840 0.5560]','MarkerFaceColor',...
+        '[0.4940 0.1840 0.5560]','DisplayName',strcat('Bar Diam: ',num2str(10)));
 end
 if isempty(t4)~=1
-    figure(4)
     subplot(1,3,1)
-    plot(dispVar4x,dispVar4y,'o','linewidth',1,'MarkerFaceColor',...
-        '[0.072 0.061 0.139]','DisplayName',strcat('Bar Diam',num2str(12)));
+    figure(4)
+    plot(dispVar4x,dispVar4y,'o','MarkerEdgeColor','[0 0.7 0.7]','MarkerFaceColor',...
+        '[0 0.7 0.7]','DisplayName',strcat('Bar Diam: ',num2str(12)));
 end
 if isempty(t5)~=1
-    figure(4)
     subplot(1,3,1)
-    plot(dispVar5x,dispVar5y,'k o','linewidth',1,'MarkerFaceColor',...
-        'black','DisplayName',strcat('Bar Diam',num2str(16)));
+    figure(4)
+    plot(dispVar5x,dispVar5y,'o','MarkerEdgeColor','black','MarkerFaceColor',...
+        'black','DisplayName',strcat('Bar Diam: ',num2str(16)));
 end
 if isempty(t6)~=1
-    figure(4)
     subplot(1,3,1)
-    plot(dispVar6x,dispVar6y,'m o','linewidth',1,'MarkerFaceColor',...
-        'magenta','DisplayName',strcat('Bar Diam',num2str(20)));
+    figure(4)
+    plot(dispVar6x,dispVar6y,'o','MarkerEdgeColor','[1 0 1]','MarkerFaceColor',...
+        '[1 0 1]','DisplayName',strcat('Bar Diam: ',num2str(20)));
 end
 if isempty(t7)~=1
-    figure(4)
     subplot(1,3,1)
-    plot(dispVar7x,dispVar7y,'o','linewidth',1,'MarkerFaceColor',...
-        '[0.255 0.069 0]','DisplayName',strcat('Bar Diam',num2str(25)));
+    figure(4)
+    plot(dispVar7x,dispVar7y,'o','MarkerEdgeColor','[0.6350 0.0780 0.1840]','MarkerFaceColor',...
+        '[0.6350 0.0780 0.1840]','DisplayName',strcat('Bar Diam: ',num2str(25)));
 end
 if isempty(t8)~=1
-    figure(4)
     subplot(1,3,1)
-    plot(dispVar8x,dispVar8y,'o','linewidth',1,'MarkerFaceColor',...
-        '[0.255 0.069 0]','DisplayName',strcat('Bar Diam',num2str(32)));
+    figure(4)
+    plot(dispVar8x,dispVar8y,'o','MarkerEdgeColor','[0.8500 0.3250 0.0980]','MarkerFaceColor',...
+        '[0.8500 0.3250 0.0980]','DisplayName',strcat('Bar Diam: ',num2str(32)));
 end
 if isempty(t9)~=1
-    figure(4)
     subplot(1,3,1)
-    plot(dispVar9x,dispVar9y,'o','linewidth',1,'MarkerFaceColor',...
-        '[0.255 0.069 0]','DisplayName',strcat('Bar Diam',num2str(40)));
+    figure(4)
+    plot(dispVar9x,dispVar9y,'o','MarkerEdgeColor','[0.4660 0.6740 0.1880]','MarkerFaceColor',...
+        '[0.4660 0.6740 0.1880]','DisplayName',strcat('Bar Diam: ',num2str(40)));
 end
 
 %% Mid cross-section
@@ -241,64 +241,64 @@ plot(x,y,'k -','linewidth',1)
 hold on
 xlabel('x´')
 ylabel('y´')
-title('Rectangular reinforced beam (Mid section)')
+title({'Rectangular reinforced beam';'Mid section'})
 legend('Beam´s boundaries')
 axis([-(b+10) b+10 -(h+10) h+10])
 hold on
 
 if isempty(t1)~=1
-    figure(4)
     subplot(1,3,2)
-    plot(dispVar1x,dispVar1y,'r o','linewidth',1,'MarkerFaceColor','red',...
-        'DisplayName',strcat('Bar Diam',num2str(6)));
+    figure(4)
+    plot(dispVar1x,dispVar1y,'o','MarkerEdgeColor','[1 0 0]','MarkerFaceColor','[1 0 0]',...
+        'DisplayName',strcat('Bar Diam: ',num2str(6)));
 end
 if isempty(t2)~=1
-    figure(4)
     subplot(1,3,2)
-    plot(dispVar2x,dispVar2y,'b o','linewidth',1,'MarkerFaceColor','blue',...
-        'DisplayName',strcat('Bar Diam',num2str(8)));
+    figure(4)
+    plot(dispVar2x,dispVar2y,'o','MarkerEdgeColor','[0 0 1]','MarkerFaceColor','[0 0 1]',...
+        'DisplayName',strcat('Bar Diam: ',num2str(8)));
 end
 if isempty(t3)~=1
-    figure(4)
     subplot(1,3,2)
-    plot(dispVar3x,dispVar3y,'o','linewidth',1,'MarkerFaceColor',...
-        '[0.05 0.205 0.05]','DisplayName',strcat('Bar Diam',num2str(10)));
+    figure(4)
+    plot(dispVar3x,dispVar3y,'o','MarkerEdgeColor','[0.4940 0.1840 0.5560]','MarkerFaceColor',...
+        '[0.4940 0.1840 0.5560]','DisplayName',strcat('Bar Diam: ',num2str(10)));
 end
 if isempty(t4)~=1
-    figure(4)
     subplot(1,3,2)
-    plot(dispVar4x,dispVar4y,'o','linewidth',1,'MarkerFaceColor',...
-        '[0.072 0.061 0.139]','DisplayName',strcat('Bar Diam',num2str(12)));
+    figure(4)
+    plot(dispVar4x,dispVar4y,'o','MarkerEdgeColor','[0 0.7 0.7]','MarkerFaceColor',...
+        '[0 0.7 0.7]','DisplayName',strcat('Bar Diam: ',num2str(12)));
 end
 if isempty(t5)~=1
-    figure(4)
     subplot(1,3,2)
-    plot(dispVar5x,dispVar5y,'k o','linewidth',1,'MarkerFaceColor',...
-        'black','DisplayName',strcat('Bar Diam',num2str(16)));
+    figure(4)
+    plot(dispVar5x,dispVar5y,'o','MarkerEdgeColor','black','MarkerFaceColor',...
+        'black','DisplayName',strcat('Bar Diam: ',num2str(16)));
 end
 if isempty(t6)~=1
-    figure(4)
     subplot(1,3,2)
-    plot(dispVar6x,dispVar6y,'m o','linewidth',1,'MarkerFaceColor',...
-        'magenta','DisplayName',strcat('Bar Diam',num2str(20)));
+    figure(4)
+    plot(dispVar6x,dispVar6y,'o','MarkerEdgeColor','[1 0 1]','MarkerFaceColor',...
+        '[1 0 1]','DisplayName',strcat('Bar Diam: ',num2str(20)));
 end
 if isempty(t7)~=1
-    figure(4)
     subplot(1,3,2)
-    plot(dispVar7x,dispVar7y,'o','linewidth',1,'MarkerFaceColor',...
-        '[0.255 0.069 0]','DisplayName',strcat('Bar Diam',num2str(25)));
+    figure(4)
+    plot(dispVar7x,dispVar7y,'o','MarkerEdgeColor','[0.6350 0.0780 0.1840]','MarkerFaceColor',...
+        '[0.6350 0.0780 0.1840]','DisplayName',strcat('Bar Diam: ',num2str(25)));
 end
 if isempty(t8)~=1
-    figure(4)
     subplot(1,3,2)
-    plot(dispVar8x,dispVar8y,'o','linewidth',1,'MarkerFaceColor',...
-        '[0.255 0.069 0]','DisplayName',strcat('Bar Diam',num2str(32)));
+    figure(4)
+    plot(dispVar8x,dispVar8y,'o','MarkerEdgeColor','[0.8500 0.3250 0.0980]','MarkerFaceColor',...
+        '[0.8500 0.3250 0.0980]','DisplayName',strcat('Bar Diam: ',num2str(32)));
 end
 if isempty(t9)~=1
-    figure(4)
     subplot(1,3,2)
-    plot(dispVar9x,dispVar9y,'o','linewidth',1,'MarkerFaceColor',...
-        '[0.255 0.069 0]','DisplayName',strcat('Bar Diam',num2str(40)));
+    figure(4)
+    plot(dispVar9x,dispVar9y,'o','MarkerEdgeColor','[0.4660 0.6740 0.1880]','MarkerFaceColor',...
+        '[0.4660 0.6740 0.1880]','DisplayName',strcat('Bar Diam: ',num2str(40)));
 end
 
 %% Right cross-section
@@ -385,62 +385,62 @@ plot(x,y,'k -','linewidth',1)
 hold on
 xlabel('x´')
 ylabel('y´')
-title('Rectangular reinforced beam (Right section)')
+title({'Rectangular reinforced beam';'Right section'})
 legend('Beam´s boundaries')
 axis([-(b+10) b+10 -(h+10) h+10])
 hold on
 
 if isempty(t1)~=1
-    figure(4)
     subplot(1,3,3)
-    plot(dispVar1x,dispVar1y,'r o','linewidth',1,'MarkerFaceColor','red',...
-        'DisplayName',strcat('Bar Diam',num2str(6)));
+    figure(4)
+    plot(dispVar1x,dispVar1y,'o','MarkerEdgeColor','[1 0 0]','MarkerFaceColor','[1 0 0]',...
+        'DisplayName',strcat('Bar Diam: ',num2str(6)));
 end
 if isempty(t2)~=1
-    figure(4)
     subplot(1,3,3)
-    plot(dispVar2x,dispVar2y,'b o','linewidth',1,'MarkerFaceColor','blue',...
-        'DisplayName',strcat('Bar Diam',num2str(8)));
+    figure(4)
+    plot(dispVar2x,dispVar2y,'o','MarkerEdgeColor','[0 0 1]','MarkerFaceColor','[0 0 1]',...
+        'DisplayName',strcat('Bar Diam: ',num2str(8)));
 end
 if isempty(t3)~=1
-    figure(4)
     subplot(1,3,3)
-    plot(dispVar3x,dispVar3y,'o','linewidth',1,'MarkerFaceColor',...
-        '[0.05 0.205 0.05]','DisplayName',strcat('Bar Diam',num2str(10)));
+    figure(4)
+    plot(dispVar3x,dispVar3y,'o','MarkerEdgeColor','[0.4940 0.1840 0.5560]','MarkerFaceColor',...
+        '[0.4940 0.1840 0.5560]','DisplayName',strcat('Bar Diam: ',num2str(10)));
 end
 if isempty(t4)~=1
-    figure(4)
     subplot(1,3,3)
-    plot(dispVar4x,dispVar4y,'o','linewidth',1,'MarkerFaceColor',...
-        '[0.072 0.061 0.139]','DisplayName',strcat('Bar Diam',num2str(12)));
+    figure(4)
+    plot(dispVar4x,dispVar4y,'o','MarkerEdgeColor','[0 0.7 0.7]','MarkerFaceColor',...
+        '[0 0.7 0.7]','DisplayName',strcat('Bar Diam: ',num2str(12)));
 end
 if isempty(t5)~=1
-    figure(4)
     subplot(1,3,3)
-    plot(dispVar5x,dispVar5y,'k o','linewidth',1,'MarkerFaceColor',...
-        'black','DisplayName',strcat('Bar Diam',num2str(16)));
+    figure(4)
+    plot(dispVar5x,dispVar5y,'o','MarkerEdgeColor','black','MarkerFaceColor',...
+        'black','DisplayName',strcat('Bar Diam: ',num2str(16)));
 end
 if isempty(t6)~=1
-    figure(4)
     subplot(1,3,3)
-    plot(dispVar6x,dispVar6y,'m o','linewidth',1,'MarkerFaceColor',...
-        'magenta','DisplayName',strcat('Bar Diam',num2str(20)));
+    figure(4)
+    plot(dispVar6x,dispVar6y,'o','MarkerEdgeColor','[1 0 1]','MarkerFaceColor',...
+        '[1 0 1]','DisplayName',strcat('Bar Diam: ',num2str(20)));
 end
 if isempty(t7)~=1
-    figure(4)
     subplot(1,3,3)
-    plot(dispVar7x,dispVar7y,'o','linewidth',1,'MarkerFaceColor',...
-        '[0.255 0.069 0]','DisplayName',strcat('Bar Diam',num2str(25)));
+    figure(4)
+    plot(dispVar7x,dispVar7y,'o','MarkerEdgeColor','[0.6350 0.0780 0.1840]','MarkerFaceColor',...
+        '[0.6350 0.0780 0.1840]','DisplayName',strcat('Bar Diam: ',num2str(25)));
 end
 if isempty(t8)~=1
-    figure(4)
     subplot(1,3,3)
-    plot(dispVar8x,dispVar8y,'o','linewidth',1,'MarkerFaceColor',...
-        '[0.255 0.069 0]','DisplayName',strcat('Bar Diam',num2str(32)));
+    figure(4)
+    plot(dispVar8x,dispVar8y,'o','MarkerEdgeColor','[0.8500 0.3250 0.0980]','MarkerFaceColor',...
+        '[0.8500 0.3250 0.0980]','DisplayName',strcat('Bar Diam: ',num2str(32)));
 end
 if isempty(t9)~=1
-    figure(4)
     subplot(1,3,3)
-    plot(dispVar9x,dispVar9y,'o','linewidth',1,'MarkerFaceColor',...
-        '[0.255 0.069 0]','DisplayName',strcat('Bar Diam',num2str(40)));
+    figure(4)
+    plot(dispVar9x,dispVar9y,'o','MarkerEdgeColor','[0.4660 0.6740 0.1880]','MarkerFaceColor',...
+        '[0.4660 0.6740 0.1880]','DisplayName',strcat('Bar Diam: ',num2str(40)));
 end

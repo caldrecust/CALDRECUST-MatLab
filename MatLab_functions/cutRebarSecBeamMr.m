@@ -1,5 +1,5 @@
 function [nbnew1,nbnew2,nbnew3,nbnew4,nbnew5,nbnew6,Abcut]=...
-                cutRebarSecBeamMrSuper(nb6,db6,Mt,b,h,hrec,vSep,fc,fy)
+                cutRebarSecBeamMr(nb6,db6,Mt,b,h,hrec,vSep,fc,fy)
             
 
 ab6=pi/4*db6.^2;

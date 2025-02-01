@@ -15,59 +15,72 @@ clc
 clear all
 
 %% Geometry
-b=300; % cross-section width
-h=550; % cross-section height
+b=280; % cross-section width
+h=510; % cross-section height
 
-hrec=50; % concrete cover on each direction
-
+hrec=50; % concrete cover on vertical direction
+brec=30; 
 d=h-hrec; % effective cross-section height
+bp=b-2*brec;
+hp=h-2*hrec;
 
 %% Materials
 fcu=30; % concrete's compressive strength
-factor_fc=0.45; % reduction factor for the f'c
-fdpc=factor_fc*fcu; % reduced f'c
+
 fy=500; % Yield stress of steel reinforcement (N/mm2)
-E=fy/0.0021; % Modulus of elasticity of the reinforcing steel
+Es=fy/0.00217; % Modulus of elasticity of the reinforcing steel
 
 %% Load conditions
-load_conditions=[1 249.9e6]; % KN-mm
+loadConditions=[1 270e6]; % N-mm
+Mu=loadConditions(1,2);
 
 %% Rebar data
 % Database of the commercially available rebar
-rebarAvailable=[6
-                8
-                10
-                12
-                16
-                20
-                25
-                32
-                40];
+rebarAvailable=[1 6;
+                2 8;
+                3 10;
+                4 12;
+                5 16;
+                6 20;
+                7 25;
+                8 32;
+                9 40];
             
 % Distribution of rebars over the cross-section
-dispositionRebar=[-75 -200;                   
-                    -25 -200;
-                    25 -200
-                    75 -200];
+distrRebar=[-bp/2 -hp/2;                   
+            -bp/4 -hp/2;
+            bp/4 -hp/2;
+            bp/2 -hp/2;
+            -bp/2 hp/2;
+            bp/2 hp/2];
                 
-RebarIndexTen=[7;6;6;7]; % rebar diameters to use for the reinforcement
+RebarDiamList=[32;20;20;32;20;20]; % rebar diameters to use for the reinforcement
                     % in tension (indices from the "rebarAvailable" array)
-                    
-RebarIndexCom=[]; % rebar diameters to use for the reinforcement
-                  % in compression (indices from the "rebarAvailable" array)
-
+            
 %% Additional design information of interest
-ast=sum(rebarAvailable(RebarIndexTen,1).^2.*pi./4);
+ast=sum(RebarDiamList([1:4]',1).^2.*pi./4);
+disp('Rebar cross-section area in tension: ');disp(ast);
+asc=sum(RebarDiamList([5:6]',1).^2.*pi./4);
+disp('Rebar cross-section area in compression: ');disp(asc);
 
-astotal=ast % Total rebar area
-rho=astotal/(b*d) % Total percentage area
+astotal=ast+asc; % Total rebar area
+disp('Total rebar cross-section area: ');disp(astotal);
 
-amin=0.003*b*d % Min allowed rebar area by code
-amax=0.025*b*d % Max allowed rebar area by code
+rhos=astotal/(b*h); % Total percentage area
+disp('Total percentage of rebar cross-section area: ');disp(rhos);
+
+amin=0.003*b*h; % Min allowed rebar area by code
+disp('Min allowed rebar area by code: ');disp(amin);
+
+amax=0.025*b*h; % Max allowed rebar area by code
+disp('Max allowed rebar area by code: ');disp(amax);
 
 %% Structural efficiency
-[maxef,Mrv,c]=EfcriticalRebarbeams(load_conditions,b,E,fdpc,RebarIndexTen,...
-    RebarIndexCom,rebarAvailable,d,hrec,0.9,dispositionRebar)
 
-beamReinforcedSection(h,b,rebarAvailable,dispositionRebar,...
-                                RebarIndexCom,RebarIndexTen)
+[Eff,Mrt,c]=EfRecBeamBars(Mu,fcu,Es,fy,h,b,distrRebar,...
+                                     RebarDiamList,hrec);
+disp('Bending moment resistance: ');disp(Mrt);
+fprintf('Structural efficiency Mu/Mr = %.4f ',Eff); fprintf('\n\n');
+disp('Neutral axis depth: ');disp(c);
+
+plotBeamReinforcedSection(h,b,distrRebar,RebarDiamList)

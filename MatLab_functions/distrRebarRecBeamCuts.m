@@ -1,7 +1,10 @@
-function [distrRebarNew,listRebarDiamsNew]=distrRebarRecBeamCutsSuper...
-                                        (nb6,db6,b,h,brec,hrec,vSep,nbnew6)
-hp=h-2*hrec;
-bp=b-2*brec;
+function [distrRebarNew,listRebarDiamsNew]=distrRebarRecBeamCuts...
+                            (nb6,db6,b,h,brec,hrec,vSep,nbAfterCut6)
+
+global dvs
+
+hp=h-2*hrec-2*dvs-max(db6(1:2));
+bp=b-2*brec-2*dvs-max([db6(1),db6(3),db6(5)]);
 
 nbl1=nb6(1);
 nbl2=nb6(2);
@@ -17,11 +20,12 @@ dbl4=db6(4);
 dbl5=db6(5);
 dbl6=db6(6);
 
-nb=sum(nb6);
+nb=sum(nb6); % total number of rebars in tension
 distrRebar=zeros(nb,2);
 
-sepLowLay=(b-2*brec-sum(nb6(1:2))*max(dbl1,dbl2))/(sum(nb6(1:2))-1);
+sepLowLay=(bp)/((nbl1+nbl2)-1); % rebar separation - center to center
 
+%% Conventional distribution
 %% Layer 1
 % Ends
 
@@ -102,7 +106,7 @@ distrRebarNew1(:,2)=distrRebar(1:2,2);
 listRebarDiamsNew1=listRebarDiams(1:2,1);
 
 % Mid-part
-nb2new=nbnew6(2);
+nb2new=nbAfterCut6(2);
 
 nbcut2=nbl2-nb2new;
 startRemove=(nb2new)/2+1; % if cuts are to be executed, the bars in the
@@ -122,7 +126,7 @@ listRebarDiamsNew2=listRebarDiams(indecesKeep,1);
 
 %% Layer 2
 % Ends
-nb3new=nbnew6(3);
+nb3new=nbAfterCut6(3);
 nbcut3=nbl3-nb3new;
 startRemove=(nb3new)/2+1;
 finishRemove=startRemove-1+nbcut3;
@@ -139,7 +143,7 @@ distrRebarNew3(:,2)=distrRebar(indecesKeep,2);
 listRebarDiamsNew3=listRebarDiams(indecesKeep,1);
 
 % Mid-part
-nb4new=nbnew6(4);
+nb4new=nbAfterCut6(4);
 nbcut4=nbl4-nb4new;
 startRemove=(nb4new)/2+1;
 finishRemove=startRemove-1+nbcut4;
@@ -157,7 +161,7 @@ listRebarDiamsNew4=listRebarDiams(indecesKeep,1);
 
 %% Layer 3
 % Ends
-nb5new=nbnew6(5);
+nb5new=nbAfterCut6(5);
 nbcut5=nbl5-nb5new;
 startRemove=(nb5new)/2+1;
 finishRemove=startRemove-1+nbcut5;
@@ -174,7 +178,7 @@ distrRebarNew5(:,2)=distrRebar(indecesKeep,2);
 listRebarDiamsNew5=listRebarDiams(indecesKeep,1);
 
 % Mid-part
-nb6new=nbnew6(6);
+nb6new=nbAfterCut6(6);
 nbcut6=nbl6-nb6new;
 startRemove=(nb6new)/2+1;
 finishRemove=startRemove-1+nbcut6;

@@ -1,9 +1,9 @@
-function eleMec=eleMecanicosRebarBeamsParab(c,fdpc,h,b,E,barIndecesComp,...
+function eleMec=strElasConcBarsParabEN1992(c,fdpc,h,b,E,barIndecesComp,...
                             barIndecesTen,disposition_rebar,rebarAvailable)
 
 %------------------------------------------------------------------------
 % Syntax:
-% eleMec=eleMecanicosRebarBeamsParab(c,fdpc,h,b,E,barIndecesComp,...
+% eleMec=strElasConcBarsParabEN1992(c,fdpc,h,b,E,barIndecesComp,...
 %                     barIndecesTen,disposition_rebar,rebarAvailable)
 %
 %-------------------------------------------------------------------------
@@ -72,7 +72,7 @@ for i=1:nv
 end
 
 elemAc=[sumaF sumaM];
-elemConc=casoConcretoParab(c,fdpc,b,h);
+elemConc=casoConcretoParabEN1992(c,fdpc,b,h);
 
 eleMec=[elemAc;
         elemConc];

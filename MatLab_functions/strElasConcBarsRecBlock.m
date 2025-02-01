@@ -1,9 +1,9 @@
-function [eleMec]=strElasConcBarsRecBlock(x,fcu,h,b,hrec,...
-                                           Es,distrRebar,listRebarDiam)
+function [Mr,Fr]=strElasConcBarsRecBlock(x,fcu,h,b,hrec,...
+                                           fy,Es,distrRebar,listRebarDiam)
 
 %------------------------------------------------------------------------
 % Syntax:
-% [eleMec]=strElasConcBarsRecBlock(x,fcu,h,b,hrec,Es,distrRebar,listRebarDiam)
+% [Mr,Fr]=strElasConcBarsRecBlock(x,fcu,h,b,hrec,fy,Es,distrRebar,listRebarDiam)
 %
 %-------------------------------------------------------------------------
 % SYSTEM OF UNITS: N,mm.
@@ -14,8 +14,11 @@ function [eleMec]=strElasConcBarsRecBlock(x,fcu,h,b,hrec,...
 % and concrete in compression. The simiplified rectangular stress block at
 % ULS is considered.
 % 
-% OUTPUT: eleMec:       vector that contains the output [Fs, Ms;
-%                                                        Fc, Mc]
+% OUTPUT: sumFrMr:      array that contains the output [Frs, Mrs;
+%                                                        Frc, Mrc]
+%                       corresponding to the sum of resistant forces.
+%                       row 1: sum of resistant actions of steel.
+%                       row 2: sum of resistant actions of concrete.
 %
 % INPUT:  distrRebar:   is the vector size: nbars x 2, containig the local
 %                       coordinates of the rebars over the cross-section
@@ -39,8 +42,8 @@ function [eleMec]=strElasConcBarsRecBlock(x,fcu,h,b,hrec,...
 %                HKUST
 %------------------------------------------------------------------------
 d=h-hrec;
-fcu=fcu/0.45;
-if fc<=45 % Clause 6.1.2.4.b (HK-2013)
+
+if fcu<=45 % Clause 6.1.2.4.b (HK-2013)
     if x>0.5*d
         x=0.5*d;
     end
@@ -67,12 +70,9 @@ frc=casoConcretoRecBlock(s,fcu,b);
 
 %% Resistance of the overall section
 nb=length(listRebarDiam);
-fsc=0;
-fst=0;
-asc=0;
-ast=0;
-azc=0;
-azt=0;
+fsc=0; fst=0;
+asc=0; ast=0;
+azc=0; azt=0;
 for i=1:nb
     abi=pi/4*listRebarDiam(i,1)^2;
     yi=distrRebar(i,2);
@@ -80,8 +80,8 @@ for i=1:nb
     
     %% Reinforcing steel strain model (elastic)
     e=ecu/x*(di-x); %epsilum (steel strain - linear distribution)
-    s=strRebarElas(e,fy,Es); % linear stress-strain curve for steel
-    fs=0.87*s*abi;
+    ss=strRebarElas1(e,fy,Es); % linear stress-strain curve for steel
+    fs=0.87*ss*abi;
     if fs<0 % steel in compression
         fsc=fsc+fs; % sum of forces of steel in compression
         asc=asc+abi; % sum of rebar area in compression
@@ -94,19 +94,23 @@ for i=1:nb
 end
 dst=azt/ast; % centroid location of reinforcement in tension (distance
              % from the upper most layer of concrete)
-dsc=azc/asc; % centroid location of rebar in compression (distance from the 
-             % upper most layer of concrete)
+if asc>0
+    dsc=azc/asc; % centroid location of rebar in compression (distance from the 
+                 % upper most layer of concrete)
+    
+    Mrs=fsc*(dst-dsc); % contribution of steel to bending resistance
 
-Mrs=fsc*(dst-dsc); % contribution of steel to bending resistance
-Mrc=frc*(dst-a/2); % contribution of concrete to bending resistance
-Mr=Mrc+Mrs; % Total bending resistance
+else
+    Mrs=0;
+end
+
+Mrc=frc*(dst-s/2); % contribution of concrete to bending resistance
+
+Mr=abs(Mrc)+abs(Mrs); % Total bending resistance
 
 Fcomp=frc+fsc; % compression forces
 Ften=fst; % tension forces
 
 Fr=Fcomp+Ften; % Total axial load forces
-
-eleMec=[fsc+fsc Mrs; % Steel resistance (axial, bending)
-        frc     Mrc]; % Concrete resistance (axial, bending)
 
 % --------------------------------- End -----------------------------

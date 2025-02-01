@@ -1,7 +1,9 @@
-function [distrRebar,listRebarDiams]=distrRebarRecBeamSuper(nb6,db6,b,h,...
+function [distrRebar,listRebarDiams]=distrRebarRecBeam(nb6,db6,b,h,...
                                     brec,hrec,vSep,sepLowLay)
-hp=h-2*hrec;
-bp=b-2*brec;
+
+global dvs
+hp=h-2*hrec-2*dvs-max(db6(1:2));
+bp=b-2*brec-2*dvs-max([db6(1),db6(3),db6(5)]);
 
 nbl1=nb6(1);
 nbl2=nb6(2);

@@ -1,24 +1,24 @@
-function [elemConc]=casoConcretoParab(c,fcm,b,h)
+function [elemConc]=casoConcretoParabEN1992(c,fcm,b,h)
 
 %------------------------------------------------------------------------
 % Syntax:
-% elemConc=casoConcretoParab(a,fdpc,b,h)
+% elemConc=casoConcretoParabEC1992(c,fcm,b,h)
 %-------------------------------------------------------------------------
 % SYSTEM OF UNITS: Any.
 %
 %------------------------------------------------------------------------
 % PURPOSE: To compute the contribution of resistance of the concrete
 % compression zone of a rectangular beam cross-section, regarding axial 
-% and bending forces.
+% and bending forces. A parabolic strain-stress curve for the concrete,
+% according to the EN1992.
 % 
 % OUTPUT: elemConc: vector that contains the output [Fc, Mc] of 
-%                    resistant axial and bending forces
+%                   resistant axial and bending forces
 %
-% INPUT:  a:        is the reduced depth of neutral axis of the
+% INPUT:  c:        is the reduced depth of neutral axis of the
 %                   cross-section in question
 %
-%         fdpc:     is the factored value of f'c as 0.45f'c according 
-%                   to the HK2013 code  
+%         fcm:      is the concrete's compressive strength 
 %
 %         b,h:      are the cross-section dimensions
 %------------------------------------------------------------------------
