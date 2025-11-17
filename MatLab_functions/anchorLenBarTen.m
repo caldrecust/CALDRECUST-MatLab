@@ -1,6 +1,6 @@
 function ldb=anchorLenBarTen(fcu,fy,h,hrec,db)
 
-if fcu==30
+if fcu<=30
     ka=40;
 elseif fcu==35
     ka=38;
@@ -13,6 +13,7 @@ elseif fcu==50
 elseif fcu>=60
     ka=28;
 end
+
 d=h-hrec;
 ldb1=ka*db+d/2; % Table 8.4 HK 2013
 

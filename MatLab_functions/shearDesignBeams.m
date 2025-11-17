@@ -121,7 +121,7 @@ if 0.5*vc<v1 && v1<=(vc+vr)
 elseif (vc+vr)<v1 && v1<min([0.8*sqrt(fcu),7])
     s1=2*ab*0.87*fy/((v1-vc)*b);
 elseif vmax<=0.5*vc
-    s3=2*ab*0.87*fy/(vr*b);
+    s1=2*ab*0.87*fy/(vr*b);
 end
 
 s1=s1-mod(s1,5);
@@ -141,6 +141,8 @@ elseif (vc+vr)<v3 && v3<min([0.8*sqrt(fcu),7])
     s3=2*ab*0.87*fy/((v3-vc)*b);
 elseif vmax<=0.5*vc
     s3=2*ab*0.87*fy/(vr*b);
+else
+    s3=maxsv;
 end
 
 s3=s3-mod(s3,5);
@@ -156,6 +158,10 @@ s2=2*ab*0.87*fy/(0.4*b);
 
 s2=s2-mod(s2,5);
 vr2=(2*ab*0.87*fy*d)/s2;
+
+if s3>s2
+    s3=s2;
+end
 Vus2=(vc*b*d+vr2);
 
 % To determine the position in which the separation of the stirrups 

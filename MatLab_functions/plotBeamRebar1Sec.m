@@ -50,6 +50,7 @@ t6=[];
 t7=[];
 t8=[];
 t9=[];
+t10=[];
 
 dispVar1x=[];
 dispVar1y=[];
@@ -77,6 +78,9 @@ dispVar8y=[];
 
 dispVar9x=[];
 dispVar9y=[];
+
+dispVar10x=[];
+dispVar10y=[];
 
 nbars=length(distrRebar(:,1));
 
@@ -117,6 +121,10 @@ for j=1:nbars
         t9=[t9,9];
         dispVar9x=[dispVar9x,distrRebar(j,1)];
         dispVar9y=[dispVar9y,distrRebar(j,2)];
+    elseif barDiamList(j)==50
+        t10=[t10,10];
+        dispVar10x=[dispVar10x,distrRebar(j,1)];
+        dispVar10y=[dispVar10y,distrRebar(j,2)];
     end
 end
         
@@ -136,7 +144,7 @@ if isempty(t1)~=1
 end
 if isempty(t2)~=1
     figure(2)
-    plot(dispVar2x,dispVar2y,'o','MarkerEdgeColor','[0 0 1]''MarkerFaceColor','[0 0 1]',...
+    plot(dispVar2x,dispVar2y,'o','MarkerEdgeColor','[0 0 1]','MarkerFaceColor','[0 0 1]',...
         'DisplayName',strcat('Bar Diam: ',num2str(8)));
 end
 if isempty(t3)~=1
@@ -173,4 +181,9 @@ if isempty(t9)~=1
     figure(2)
     plot(dispVar9x,dispVar9y,'o','MarkerEdgeColor','[0.4660 0.6740 0.1880]','MarkerFaceColor',...
         '[0.4660 0.6740 0.1880]','DisplayName',strcat('Bar Diam: ',num2str(40)));
+end
+if isempty(t10)~=1
+    figure(2)
+    plot(dispVar9x,dispVar9y,'o','MarkerEdgeColor','[0.7 0 1]','MarkerFaceColor',...
+        '[0.7 0 1]','DisplayName',strcat('Bar Diam: ',num2str(50)));
 end

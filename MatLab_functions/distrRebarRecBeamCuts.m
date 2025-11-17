@@ -1,7 +1,7 @@
 function [distrRebarNew,listRebarDiamsNew]=distrRebarRecBeamCuts...
                             (nb6,db6,b,h,brec,hrec,vSep,nbAfterCut6)
 
-global dvs
+dvs=10;
 
 hp=h-2*hrec-2*dvs-max(db6(1:2));
 bp=b-2*brec-2*dvs-max([db6(1),db6(3),db6(5)]);
@@ -36,7 +36,7 @@ distrRebar(1:nbl1,2)=-0.5*hp+0.5*max(dbl1,dbl2);
 listRebarDiams(1:nbl1,1)=dbl1;
 
 % Middle
-bp2=bp-2*dbl1-2*sepLowLay;
+bp2=bp-max([db6(1),db6(3),db6(5)])-2*sepLowLay;
 
 if nbl2>1
     xl2=linspace(-0.5*bp2,0.5*bp2,nbl2);
@@ -59,7 +59,7 @@ distrRebar(nbl1+nbl2+1:nbl1+nbl2+nbl3,2)=-0.5*hp+max(dbl1,dbl2)+vSep+...
 listRebarDiams(nbl1+nbl2+1:nbl1+nbl2+nbl3,1)=dbl3;
 msepLay=(nbl2-1)/(nbl4-1);
 % Middle
-bp2=bp-2*dbl3-2*sepLowLay*msepLay;
+%bp2=bp-2*dbl3-2*sepLowLay*msepLay;
 if nbl4>1
     xl2=linspace(-0.5*bp2,0.5*bp2,nbl4);
     distrRebar(nbl1+nbl2+nbl3+1:nbl1+nbl2+nbl3+nbl4,1)=xl2';
@@ -83,7 +83,7 @@ distrRebar(nbl1+nbl2+nbl3+nbl4+1:nbl1+nbl2+nbl3+nbl4+nbl5,2)=-0.5*hp+max(dbl1,db
 listRebarDiams(nbl1+nbl2+nbl3+nbl4+1:nbl1+nbl2+nbl3+nbl4+nbl5,1)=dbl5;
 msepLay=(nbl2-1)/(nbl6-1);
 % Middle
-bp2=bp-2*dbl5-2*sepLowLay*msepLay;
+%bp2=bp-2*dbl5-2*sepLowLay*msepLay;
 if nbl6>1
     xl2=linspace(-0.5*bp2,0.5*bp2,nbl6);
     distrRebar(nbl1+nbl2+nbl3+nbl4+nbl5+1:nbl1+nbl2+nbl3+nbl4+nbl5+nbl6,1)=xl2';

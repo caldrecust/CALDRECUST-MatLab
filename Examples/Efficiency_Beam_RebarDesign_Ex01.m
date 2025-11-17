@@ -60,6 +60,7 @@ RebarDiamList=[32;20;20;32;20;20]; % rebar diameters to use for the reinforcemen
 %% Additional design information of interest
 ast=sum(RebarDiamList([1:4]',1).^2.*pi./4);
 disp('Rebar cross-section area in tension: ');disp(ast);
+
 asc=sum(RebarDiamList([5:6]',1).^2.*pi./4);
 disp('Rebar cross-section area in compression: ');disp(asc);
 
@@ -78,9 +79,12 @@ disp('Max allowed rebar area by code: ');disp(amax);
 %% Structural efficiency
 
 [Eff,Mrt,c]=EfRecBeamBars(Mu,fcu,Es,fy,h,b,distrRebar,...
-                                     RebarDiamList,hrec);
+                                     RebarDiamList,hrec)
+[Eff,Mrt,c]=EfRebarTBeams(Mu,b,h,100,6000,fcu,Es,fy,...
+                         RebarDiamList,hrec,distrRebar)
+                     
 disp('Bending moment resistance: ');disp(Mrt);
 fprintf('Structural efficiency Mu/Mr = %.4f ',Eff); fprintf('\n\n');
 disp('Neutral axis depth: ');disp(c);
 
-plotBeamReinforcedSection(h,b,distrRebar,RebarDiamList)
+plotBeamRebar1Sec(h,b,distrRebar,RebarDiamList)

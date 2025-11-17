@@ -1,6 +1,7 @@
 function [nbnew1,nbnew2,nbnew3,nbnew4,nbnew5,nbnew6,Abcut]=...
-                cutRebarSecBeamMr(nb6,db6,Mt,b,h,hrec,vSep,fc,fy)
-            
+                cutRebarSecBeamMr(nb6,db6,Mt,b,h,hrec,vSep,fcu,fy)
+   
+Amin=0.003*b*h;
 
 ab6=pi/4*db6.^2;
 Ab6=nb6.*ab6;
@@ -14,10 +15,13 @@ if nb6(5)+nb6(6)>0
     d=d-vSep-max(db6(5),db6(6));
 end
 
-k=abs(Mt/(b*d^2*0.87*0.45*fc));
-q=1-sqrt(1-4*(0.5*k));
-
-Abm=b*h*0.45*fc/fy*q; % min required steel cross-section area
+k=abs(Mt/(b*d^2*fcu));
+if k>0.156
+    k=0.156;
+end
+z=d*(0.5+sqrt(0.25-k/0.9));
+Abm=Mt/(0.87*fy*z);
+Abm=max([Abm,Amin]);
 
 Abtarget=Abtotal-Abm;
 if Abtarget>0.5*Abtotal % amount of rebar area to be cut. Note: no more 
@@ -27,6 +31,7 @@ end
 if Ab6(5)+Ab6(6)>Abtarget % only rebars on the outer layer will be cut
     
     nbcut6=fix(Abtarget/ab6(6)); % number of rebar in mid - outer layer
+    
     if nb6(6)>=nbcut6
         if mod(nb6(6),2)==0
             if mod(nbcut6,2)~=0

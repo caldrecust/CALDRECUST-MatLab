@@ -1,4 +1,4 @@
-function ExportDesignSSRecBeam(directionData,DimBeamsCollec,coordEndBeams,...
+function ExportDesignSSRecBeam(directionData,DimBeamsCollec,db18Spans,...
     LenRebarL,LenRebarM,LenRebarR,DistrRebarLeft,DistrRebarMid,DistrRebarRight,...
     totnbSpan,tenbLMRspan,ListRebarDiamLeft,ListRebarDiamMid,ListRebarDiamRight,...
     diamListdSdb,distrSb,beamNSb,ShearBeamDesignCollec)
@@ -117,11 +117,12 @@ fclose(fileid_07);
 fclose(fileid_08);
 fclose(fileid_09);
 
-nombre_archivo='CoordBeginBeams.csv';
+nombre_archivo='TendbSec.csv';
 fileid_10=fopen([directionData,nombre_archivo],'w+t');
 
 for i=1:nbeams
-    fprintf(fileid_10,'%.2f,%.2f,%.2f\n',coordEndBeams(i,:));
+    fprintf(fileid_10,'%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d\n',...
+        db18Spans(i,:));
 end
 fclose(fileid_10);
 

@@ -1,5 +1,5 @@
 function [raiz]=rootMrBeamsRebar(c1,c2,fr,Es,fy,distrRebar,...
-                                listRebarDiam,h,b,hrec,fcu,ea)
+                                listRebarDiam,h,b,Cc,fcu,ea)
 
 %------------------------------------------------------------------------
 % Syntax:
@@ -37,13 +37,13 @@ function [raiz]=rootMrBeamsRebar(c1,c2,fr,Es,fy,distrRebar,...
 
 %%%%%%%%%%%%%%%%%%%%%%%------------- f(l)------------%%%%%%%%%%%%%%%%%%%%%
 
-[Mr,Fr]=strElasConcBarsRecBlock(c1,fcu,h,b,hrec,fy,Es,distrRebar,listRebarDiam);
+[Mr,Fr]=strElasConcBarsRecBlock(c1,fcu,h,b,Cc,fy,Es,distrRebar,listRebarDiam);
 
 frt=Fr;
 root1=fr-frt;
 
 %%%%%%%%%%%%%%%%%%%%%% f(u) %%%%%%%%%%%%%%%%%%%%%%% 
-[Mr,Fr]=strElasConcBarsRecBlock(c2,fcu,h,b,hrec,fy,Es,distrRebar,listRebarDiam);
+[Mr,Fr]=strElasConcBarsRecBlock(c2,fcu,h,b,Cc,fy,Es,distrRebar,listRebarDiam);
 
 frt=Fr;
 root2=fr-frt;
@@ -55,7 +55,7 @@ if c<=0
     c=0.000001;
 end
 
-[Mr,Fr]=strElasConcBarsRecBlock(c,fcu,h,b,hrec,fy,Es,distrRebar,listRebarDiam);
+[Mr,Fr]=strElasConcBarsRecBlock(c,fcu,h,b,Cc,fy,Es,distrRebar,listRebarDiam);
 
 frt=Fr;
 rootc=fr-frt;
@@ -71,7 +71,7 @@ while(es>ea)
     if((root1*rootc)<0)
         c2=c;
         
-        [Mr,Fr]=strElasConcBarsRecBlock(c2,fcu,h,b,hrec,fy,Es,distrRebar,listRebarDiam);
+        [Mr,Fr]=strElasConcBarsRecBlock(c2,fcu,h,b,Cc,fy,Es,distrRebar,listRebarDiam);
 
         frt=Fr;
         root2=fr-frt;
@@ -81,7 +81,7 @@ while(es>ea)
     elseif((root1*rootc)>0)
         c1=c;
         
-        [Mr,Fr]=strElasConcBarsRecBlock(c1,fcu,h,b,hrec,fy,Es,distrRebar,listRebarDiam);
+        [Mr,Fr]=strElasConcBarsRecBlock(c1,fcu,h,b,Cc,fy,Es,distrRebar,listRebarDiam);
         
         frt=Fr;
         root1=fr-frt;
@@ -96,7 +96,7 @@ while(es>ea)
         c=0.000001;
     end
     
-    [Mr,Fr]=strElasConcBarsRecBlock(c,fcu,h,b,hrec,fy,Es,distrRebar,listRebarDiam);
+    [Mr,Fr]=strElasConcBarsRecBlock(c,fcu,h,b,Cc,fy,Es,distrRebar,listRebarDiam);
     
     frt=Fr;
     rootc=fr-frt;

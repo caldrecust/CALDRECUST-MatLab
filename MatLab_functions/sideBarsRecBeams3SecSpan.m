@@ -57,8 +57,11 @@ bp=b-2*brec-2*dstirrup-dSb;
 ysb=linspace(lowH+sepSb,upH-sepSb,nSb);
 xsb=[-0.5*bp,0.5*bp];
 
-for i=1:nSb
-    distrSideBars(i,:)=[xsb(1),ysb(i)];
-    distrSideBars(nSb+i,:)=[xsb(2),ysb(i)];
+if nSb>0
+    for i=1:nSb
+        distrSideBars(i,:)=[xsb(1),ysb(i)];
+        distrSideBars(nSb+i,:)=[xsb(2),ysb(i)];
+    end
+else
+    distrSideBars=[];
 end
-

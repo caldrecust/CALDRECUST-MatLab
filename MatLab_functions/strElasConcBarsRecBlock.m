@@ -1,5 +1,5 @@
-function [Mr,Fr]=strElasConcBarsRecBlock(x,fcu,h,b,hrec,...
-                                           fy,Es,distrRebar,listRebarDiam)
+function [Mr,Fr]=strElasConcBarsRecBlock(x,fcu,h,b,Cc,fy,Es,distrRebar,...
+                                         listRebarDiam)
 
 %------------------------------------------------------------------------
 % Syntax:
@@ -41,7 +41,7 @@ function [Mr,Fr]=strElasConcBarsRecBlock(x,fcu,h,b,hrec,...
 % Copyright (c)  School of Engineering
 %                HKUST
 %------------------------------------------------------------------------
-d=h-hrec;
+d=h-Cc;
 
 if fcu<=45 % Clause 6.1.2.4.b (HK-2013)
     if x>0.5*d
@@ -69,6 +69,7 @@ end
 frc=casoConcretoRecBlock(s,fcu,b);
 
 %% Resistance of the overall section
+
 nb=length(listRebarDiam);
 fsc=0; fst=0;
 asc=0; ast=0;
@@ -79,6 +80,7 @@ for i=1:nb
     di=0.5*h-yi; %di
     
     %% Reinforcing steel strain model (elastic)
+    
     e=ecu/x*(di-x); %epsilum (steel strain - linear distribution)
     ss=strRebarElas1(e,fy,Es); % linear stress-strain curve for steel
     fs=0.87*ss*abi;
@@ -99,7 +101,6 @@ if asc>0
                  % upper most layer of concrete)
     
     Mrs=fsc*(dst-dsc); % contribution of steel to bending resistance
-
 else
     Mrs=0;
 end

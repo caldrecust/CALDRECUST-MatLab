@@ -8,8 +8,8 @@ function UC=unitCostCardBeamsRec(ucWire,ucRebar,ucWorkers,performWorkers,...
 %-------------------------------------------------------------------------
 % SYSTEM OF UNITS: Any
 %-------------------------------------------------------------------------
-% PURPOSE: To compute the unit cost of reinforcment assembly for a
-% rectangular concrete column.
+% PURPOSE: To compute the unit cost of reinforcement assembly for a
+% rectangular concrete beam.
 % 
 % OUTPUT: UC:                   unit cost per unit-weight of reinforcement 
 %                               $/Weight
