@@ -7,9 +7,12 @@ function [minimumFitness,bestLenRebar,bestsepRebar,bestNbCombo9,bestEffLeft,best
     (load_conditions,fcu,Es,h,b,span,dbc,hagg,brec,hrec,pmin,pmax,sepMin,...
     cutLoc,Wfac,nblm,rebarAvailable)
             
-Wunb=Wfac(1:3);
-Wnd=Wfac(4:5);
-Wcut=Wfac(6:8);
+Wunb=Wfac(1:2);
+Wnd=Wfac(3);
+Wcut=Wfac(4);
+Wnb=Wfac(5);
+Wcs1=Wfac(6);
+Wcs2=Wfac(7);
 
 fy=Es*0.00217;
 
@@ -174,8 +177,9 @@ ld1R=anchorLenBarTen(fcu,fy,h,hrec,db1l);
 lenRebar=[lenRebarL;lenRebarM;lenRebarR];
 
 %% Constructability
-
-[UNBS,UNDS,UCS,BSS,CFAS,BS,CFA]=CFABeamsRec1DSec(nb3l,nb3m,nbarsRight,db1l,...
+[FCS1,FCS2,NB,UNB,UND,UC,CS]=CSRebarBeamsRec1DSec(nb3l,nb3m,nb3r,...
+    dbl,dbm,dbr,nbcut3l,nbcut3m,nbcut3r,Wunb,Wnd,Wcut,Wnb,Wcs1,Wcs2)
+[UNBS,UNDS,UCS,BSS,CFAS,BS,CS]=CFABeamsRec1DSec(nb3l,nb3m,nbarsRight,db1l,...
 db1m,db1l,nbcut3sec(1,:),nbcut3sec(2,:),nbcut3sec(3,:),Wunb,Wnd,Wcut);
 
 %% Rebar distribution restriction
@@ -234,7 +238,7 @@ if all([EffMid<1.0,EffLeft<1.0,EffRight<1.0,Abr>=amin,Abr<=amax,Abm>=amin,...
     bestcMid=cMid;
     bestcRight=cRight;
 
-    bestCFA=CFA;
+    bestCFA=CS;
     constr=0;
 else
     constr=0;

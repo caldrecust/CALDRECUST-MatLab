@@ -3,7 +3,7 @@ function [minArea,bestEff,bestMr,bestc,xBest,bestListDiam,bestRebarDistr,...
     pmax,sepMin,sepRebaright,nbAfterCut3,distrRebarComp,listRebarDiamComp,...
     nb3l,dbc,nbr)
 
-[vSepMin,vSepMax]=sepMinMaxHK13(dbc(1),hagg,1);
+[vSepMin,~]=sepMinMaxHK13(dbc(1),hagg,1);
 
 fy=Es*0.00217;
 

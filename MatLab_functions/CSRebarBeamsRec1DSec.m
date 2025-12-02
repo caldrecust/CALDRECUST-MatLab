@@ -1,6 +1,49 @@
-function [UNBS,UNDS,UCS,BSS,CFAS,BS,CFA]=CSRebarBeamsRec1DSec(nb3l,nb3m,nb3r,...
-    dbl,dbm,dbr,nbcut3l,nbcut3m,nbcut3r,Wunb,Wnd,Wcut)
+function [FCS1,FCS2,NB,UNB,UND,UC,CS]=CSRebarBeamsRec1DSec(nbmaxLay,nb3l,...
+    nb3m,nb3r,dbl,dbm,dbr,nbcut3l,nbcut3m,nbcut3r,Wunb,Wnd,Wcut,Wnb,Wcs1,Wcs2)
 
+    %------------------------------------------------------------------------
+    % Syntax:
+    % [FCS1,FCS2,NB,UNB,UND,UC,CS]=CSRebarBeamsRec1DSec(nb3l,nb3m,nb3r,...
+    %  dbl,dbm,dbr,nbcut3l,nbcut3m,nbcut3r,Wunb,Wnd,Wcut,Wcs1,Wcs2)
+    %-------------------------------------------------------------------------
+    % SYSTEM OF UNITS: Any.
+    %
+    %------------------------------------------------------------------------
+    % PURPOSE: To compute the constructability score of a rebar design in a
+    % concrete beam, consisting of a max of 1 rebar diameter size per 
+    % cross-section
+    % 
+    % OUTPUT: CS:       Constructability Score
+    %
+    % INPUT:  Wunb:     is the weight factor for the Uniformity of Number
+    %                   of Rebars (rebar distribution)
+    %
+    %         Wnd:      is the weight factor for the diversity of number of
+    %                   rebar diameter sizes
+    %
+    %         Wcut:     is the weight factor for the number of cuts
+    %
+    %         Wnb:      is the weight factor for the number of rebars
+    %
+    %         Wcs1:     is the weight factor for the constructability score
+    %                   of rebar assembly
+    %
+    %         Wcs2:     is the weight factor for the constructability score
+    %                   of rebar cutting and bending
+    %
+    %------------------------------------------------------------------------
+    % LAST MODIFIED: L.F.Veduzco    2025-02-05
+    %                School of Engineering
+    %                The Hong Kong University of Science and Technology (HKUST)
+    %------------------------------------------------------------------------
+        
+    %% Number of rebars
+    NB1 = 1-min(sum(nb3l)/(3*nbmaxLay),1);
+    NB2 = 1-min(sum(nb3m)/(3*nbmaxLay),1);
+    NB3 = 1-min(sum(nb3r)/(3*nbmaxLay),1);
+    
+    NB = 1/3*(NB1 + NB2 + NB3) ;
+    
     %% Uniformity of Number of Rebars along the beam's span
     % Right section
     nb3sec=[nb3l;
@@ -36,58 +79,47 @@ function [UNBS,UNDS,UCS,BSS,CFAS,BS,CFA]=CSRebarBeamsRec1DSec(nb3l,nb3m,nb3r,...
     UNB=sum(UNBS)/3;
     
     %% Number of diameters sizes
-    for i=1:1
-        dbsec=db3sec(:,i);
-        nb3s=nb3sec(:,i);
 
-        % Quantifying the number of different diameter sizes per section
-        NDS = difDiamSizesLayers(dbsec',nb3s');
+    dbsec=db3sec(:,1);
+    nb3s=nb3sec(:,1);
 
-        UNDS(i)=1/NDS^Wnd(1);
-    end
-    UND=UNDS;
+    % Quantifying the number of different diameter sizes per section
+    NDS = difDiamSizesLayers(dbsec',nb3s');
+
+    UND=1/NDS;
     
-    %% Number of cuts
+    %% Cutting and bending
+    % Number of cuts and number of layers
     for i=1:3
         nb3s=nb3sec(i,:);
-        nbcuts=nbcuts3sec(i,:);
-        nlaysCut=sum((nbcuts~=0));
-
-        if nlaysCut~=0
-
-            nlaysCut=ceil(nlaysCut);
-            UCL=zeros(nlaysCut,1);
-            for j=1:nlaysCut
-                if (nb3s(j)~=0)
-                    UCL(j)=((nb3s(j)-nbcuts(j))/...
-                                (nb3s(j)))^Wcut(2);
-                end
-            end
-            UCS(i)=1/nlaysCut^Wcut(1)*sum(UCL);
+        nbcuts=sum(nbcuts3sec(i,:));
+        nlays=sum((nb3s~=0));
+        nlays=ceil(nlays);
+        NC=(nbcuts/sum(nb3s))^Wcut(2);
+        
+        if nbcuts>0
+            UCS(i)=(1/nlays)^Wcut(1)*NC;
         else
             UCS(i)=1;
         end
     end
-
-    UC=sum(UCS)/3;
+    NC=sum(UCS)/3;
     
-    %% Buildability Score
-    % Per section
-    BSS=UNBS.^Wunb(3)+UNDS.^Wnd(2)+UCS.^Wcut(3);
-
-    % Per length
-    BS=UNB^Wunb(3)+UND^Wnd(2)+UC^Wcut(3);
+    % Irregularity of cut lengths
     
-    %% Constructability Factor of Assembly
-    % Per section
-    CFAS=BSS./3;
-
-    % Per length
-    CFA=BS/3;
+    CSDCut=(1/NDS)^0.5;
     
+    %% Constructability of assembly and placing
+    FCS1 = ((UNB^Wunb(2) + UND^Wnd(1) + NB.^Wnb(1))/3 ) ;
+    
+    %% Constructability of cutting and bending
+    FCS2 = ( NC + CSDCut )/2 ;
+    
+    %% Constructability Score
+    CS = 1/2*(FCS1^Wcs1 + FCS2^Wcs2);
 end
 
-
+%% Function appendix
 function nDiams = difDiamSizesLayers(vector,refDifZero)
     nitemsVec=length(vector);
     dbsecdif0=[];

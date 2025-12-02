@@ -1,6 +1,6 @@
 function [UNBS,UNDS,UCS,BSS,CFAS,BS,CFA]=CSRebarBeamsRec6DSec(nb6l,nb6m,nb6r,...
     dbl6,dbm6,dbr6,nbcut6l,nbcut6m,nbcut6r,Wunb,Wnd,Wcut)
-
+    
     %% Uniformity of Number of Rebars along the beam's span
     % Right section
     nb3sec=[nb6l;

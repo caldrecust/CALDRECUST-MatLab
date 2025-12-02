@@ -2,13 +2,13 @@ function [frc,mrc]=casoConcretoTBlock(s,fcu,be,hf,bw,dst)
 
 %------------------------------------------------------------------------
 % Syntax:
-% frc = casoConcretoRecBlock(s,fcu,b,h)
+% [frc,mrc]=casoConcretoTBlock(s,fcu,be,hf,bw,dst)
 %-------------------------------------------------------------------------
 % SYSTEM OF UNITS: Any.
 %
 %------------------------------------------------------------------------
 % PURPOSE: To compute the contribution of resistance of the concrete
-% compression zone of a rectangular beam cross-section, regarding axial 
+% compression zone of a T-shaped beam cross-section, regarding axial 
 % and bending forces.
 % 
 % OUTPUT: frc:       resistant axial force of concrete in compression
@@ -18,7 +18,14 @@ function [frc,mrc]=casoConcretoTBlock(s,fcu,be,hf,bw,dst)
 %
 %         fcu:      value of f'c (not factorized) 
 %
-%         b:        is the cross-section width dimension
+%         bw:       is the cross-section width dimension of the web
+%
+%         be:       is the cross-section width dimension of the flange
+%
+%         hf:       is the thickness dimension of the flange (mm)
+%
+%         dst:      is the effective depth of steel
+%
 %------------------------------------------------------------------------
 % LAST MODIFIED: L.F.Veduzco    2025-02-05
 %                School of Engineering
