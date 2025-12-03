@@ -2,10 +2,8 @@ clc
 clear all
 
 %% GNN
-%A=importdata('/Users/lfvm94/Library/CloudStorage/OneDrive-HKUSTConnect/PhD/PhD_Research/MOO_ConstrucBased_Beams_HK/Enhanced_Data_MOO/Enhanced_Data_1LOT_Optimum_Db_HK_3000.xlsx');
 A=importdata('/Users/lfvm94/Library/CloudStorage/OneDrive-HKUSTConnect/PhD/PhD_Research/MOO_ConstrucBased_Beams_HK/Enhanced_Data_MOO/Enhanced_Data_1LOT_HK_Nb_Db_Simple_4000.xlsx');
-%A=importdata('C:\Users\lfver\OneDrive - HKUST Connect\PhD\PhD_Research\MOO_ConstrucBased_Beams_HK\Enhanced_Data_MOO\Data_Class_Beams_HK.xlsx');
-%A=importdata('C\Users\lfvm94\Library\CloudStorage\OneDrive - HKUST Connect\PhD\PhD_Research\MOO_ConstrucBased_Beams_HK\Enhanced_Data_MOO\Enhanced_Data_1LOT_Nb_Db_Simple_4000.xlsx');
+
 DR=A.data(1:4000,:);
 
 n=length(DR(:,1));
@@ -262,8 +260,8 @@ for i = 1:nbatches
     dsTrain{i,2} = TTrain(i1:i2, :);
 end
 
-Totrain=true;
-if Totrain
+dotrain=true;
+if dotrain
     
     monitor = trainingProgressMonitor( ...
         Metrics=["TrainingLoss","ValidationLoss"], ...

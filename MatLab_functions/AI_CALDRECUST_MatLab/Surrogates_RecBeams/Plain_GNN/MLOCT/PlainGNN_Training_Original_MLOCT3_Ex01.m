@@ -36,7 +36,9 @@ n=length(DR(:,1));
 
 % Each optimum features (nb1, nb2, ...nb5 and db1, db2, ..., db5) has ...
 % three components (for each rebar layer). 
-% This network is trained only for the first level of optimum constructability target LOCT1 (or lower rebar weight from the Pareto Front from which the data was generated). As shown below:
+% This network is trained only for the third level of optimum 
+% constructability target LOCT1 (or lower rebar weight from the Pareto 
+% Front from which the data was generated).
 
 %% Prepare data for Training 
 % Arrange data in arrays
@@ -45,9 +47,9 @@ numObservations=n;
 
 Y1 = [];
 for i=1:numObservations
-    As9(i,:)=[sum(DR(i,10:12).*DR(i,55:57).^2*pi/4),...
-              sum(DR(i,13:15).*DR(i,58:60).^2*pi/4),...
-              sum(DR(i,16:18).*DR(i,61:63).^2*pi/4)];
+    As9(i,:)=[sum(DR(i,28:30).*DR(i,73:75).^2*pi/4),...
+              sum(DR(i,31:33).*DR(i,76:78).^2*pi/4),...
+              sum(DR(i,34:36).*DR(i,79:81).^2*pi/4)];
 
     if sum(As9(i,:)) > 0
         Y1=[Y1;As9(i,:)];
@@ -509,7 +511,7 @@ hold on
 legend(strcat('Data ','R = ',num2str(BT1(1))),'Y=T','Fit')
 xlabel('$Y$',interpreter='latex')
 ylabel('$\hat{Y}$',interpreter='latex')
-title({strcat('True vs GNN ', ' solution:'),'MLOCT-1','Optimum rebar area of a Beam',...
+title({strcat('True vs GNN ', ' solution:'),'MLOCT-3','Optimum rebar area of a Beam',...
     'Left section'},interpreter='latex') 
 hold on
 grid on
@@ -528,7 +530,7 @@ hold on
 legend(strcat('Data ','R = ',num2str(BT2(1))),'Y=T','Fit')
 xlabel('$Y$',interpreter='latex')
 ylabel('$\hat{Y}$',interpreter='latex')
-title({strcat('True vs GNN ', ' solution:'),'MLOCT-1','Optimum rebar area of a Beam',...
+title({strcat('True vs GNN ', ' solution:'),'MLOCT-3','Optimum rebar area of a Beam',...
     'Mid section'},interpreter='latex') 
 hold on
 grid on
@@ -546,7 +548,7 @@ hold on
 legend(strcat('Data ','R = ',num2str(BT3(1))),'Y=T','Fit')
 xlabel('$Y$',interpreter='latex')
 ylabel('$\hat{Y}$',interpreter='latex')
-title({strcat('True vs GNN ', ' solution:'),'MLOCT-1','Optimum rebar area of a Beam',...
+title({strcat('True vs GNN ', ' solution:'),'MLOCT-3','Optimum rebar area of a Beam',...
     'Right section'},interpreter='latex') 
 hold on
 grid on
