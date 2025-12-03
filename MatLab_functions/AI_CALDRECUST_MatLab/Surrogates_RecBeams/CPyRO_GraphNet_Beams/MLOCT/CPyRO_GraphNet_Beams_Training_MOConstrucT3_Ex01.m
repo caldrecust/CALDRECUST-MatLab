@@ -1,31 +1,51 @@
 
 clc
 clear all
+%% Constructability-aware Physics-Informed GNN for Rebar Optimization 
+% Design in Concrete Beams (CPyRO-GraphNet-Beams) - MLOCT 3
 
-doTrain=false
+% Note: Training this network is a computationally intensive task. To make 
+% the example run quicker, this example skips the training step and loads 
+% a pretrained network. To instead train the network, set the doTraining 
+% variable to true.
+doTraining = false;
 %% Preparing data
-%A=importdata('C:\Users\lfver\OneDrive - HKUST Connect\PhD\PhD_Research\MOO_ConstrucBased_Beams_HK\Enhanced_Data_MOO\Enhanced_Data_5LOT_HK_03.xlsx');
-%A=importdata('/Users/lfvm94/Library/CloudStorage/OneDrive-HKUSTConnect/PhD/PhD_Research/MOO_ConstrucBased_Beams_HK/Enhanced_Data_MOO/Enhanced_Data_5LOT_HK_As_3400.xlsx');
-%A=importdata('C:/Users/luizv/OneDrive - HKUST Connect/PhD/PhD_Research/MOO_ConstrucBased_Beams_HK/Enhanced_Data_MOO/Enhanced_Data_1LOT_HK_Nb_Db_Simple_4000.xlsx');
-A=importdata('/Users/lfvm94/Library/CloudStorage/OneDrive-HKUSTConnect/PhD/PhD_Research/MOO_ConstrucBased_Beams_HK/Enhanced_Data_MOO/Enhanced_Data_1LOT_HK_Nb_Db_Simple_4000.xlsx');
+% Load data: Give the path of the folder where the data is stored. 
+% Adjust it to your own path. 
+A=importdata('/Users/lfvm94/Library/CloudStorage/OneDrive-HKUSTConnect/PhD/PhD_Research/MOO_ConstrucBased_Beams_HK/Enhanced_Data_MOO/Enhanced_Data_5LOT_HK_Nb_Db_Simple_4000.xlsx');
 
 DR=A.data;
 numObservations=size(DR,1);
 
-subsize=500;
+subsize=4000;
 idxSubData=ceil(rand(subsize,1)*numObservations);
 DR=DR(idxSubData,:);
 numObservations=length(DR(:,1));
 
-%% Data points to enforce BC
+% The data is an array of 109 columns. The first 7 columns represent the 
+% input features of the nework. b, h, fcu, L, Mur, Mum, Mul. The next two 
+% columns are the magnitudes of the distributed loads in N/mm. Then, the 
+% rest of columns are the targets (optimum rebar design features, number 
+% of rebars and the diameter sizes). Five targets are included for each 
+% feature, then, the five constructability values of each optimum design 
+% and the rebar weight (in Kg) are included.
+% [b, h, fcu, L, Mu1, Mu2, Mu3, W1, W2, nb1, nb2, nb3, nb4, nb5, db1, db2,...
+%  db3, db4, db5, cs1, cs2, cs3, cs4, cs5, ws1, ws2, ws3, ws4, ws5].
 
+% Each optimum features (nb1, nb2, ...nb5 and db1, db2, ..., db5) has three 
+% components (for each rebar layer). 
+% This network is trained only for the first level of optimum 
+% constructability target LOCT3 (or mid rebar weight from the Pareto 
+% Front from which the data was generated).
+%% Data points to enforce BC
+% 
 dL = 100;
 i = 0;
 for j =1:numObservations
-    As9(j,:)=[sum(DR(j,10:12).*DR(j,19:21).^2*pi/4),...
-              sum(DR(j,13:15).*DR(j,22:24).^2*pi/4),...
-              sum(DR(j,16:18).*DR(j,25:27).^2*pi/4)];
-
+    As9(j,:)=[sum(DR(j,28:30).*DR(j,73:75).^2*pi/4),...
+              sum(DR(j,31:33).*DR(j,76:78).^2*pi/4),...
+              sum(DR(j,34:36).*DR(j,79:81).^2*pi/4)];
+    
     A13=As9(j,:)';
     if sum([A13']) > 0
         i = i + 1;
@@ -68,6 +88,8 @@ end
 
 numObservations = size(EI,2);
 
+% Get the indeces of training, validation and testing data with function 
+% trainingPartitions attahced in the Function appendix.
 [idxTrain,idxValidation,idxTest] = trainingPartitions(numObservations,[0.7 0.15 0.15]);
 nTrain=length(idxTrain);
 nValidation=length(idxValidation);
@@ -150,7 +172,7 @@ BCU1Test = dlarray(u0BC1Test,"BC");
 
 domainCollocPointsXTest = dlarray(domainCollocPointsXTest , "CB");
 
-%% Define GNN achitecture
+%% Define GNN connectivity
 elements=[2 1 ;
           1 3];
 
@@ -169,7 +191,8 @@ end
 
 adjacency=repmat(adjacency,[1,1,numObservations]);
 
-% Features
+%% Prepare the data related to the coordinates of the BC points
+% Features: X coordinates of BC points
 XBC=zeros(numObservations,numNodesGNN,numNodesGNN);
 for i=1:numObservations
     for j=1:numNodesGNN
@@ -178,7 +201,8 @@ for i=1:numObservations
 end
 XBC = double(permute(XBC, [2 3 1]));
 
-%% Partition of data
+%% Further proceed to partition the data with the random indeces previously 
+% generated.
 
 % node adjacency data
 adjacencyDataTrain = adjacency(:,:,idxTrain);
@@ -204,21 +228,14 @@ AsDataTest = nodesAb1to3(idxTest,:);
 XTrain=[XTrain1];
 XValidation=[XValidation1];
 
-% Data for NLayer classifier
+% Gather data into one single variable and normalize it with standard 
+% normalization 
 [XTrainPIGNN,XValidationPIGNN,XTestPIGNN,meanXNL,sigsqXNL]=dataTrainNLClass(XNL,idxTrain,...
                         idxValidation,idxTest,adjacency,numNodesGNN,AsDataTrain,...
                         AsDataValidation,AsDataTest);
 
-muY1=mean(u0BC1(:,1));
-muY2=mean(u0BC1(:,2));
-muY3=mean(u0BC1(:,3));
 
-sigsqY1=var(u0BC1(:,1),1);
-sigsqY2=var(u0BC1(:,2),1);
-sigsqY3=var(u0BC1(:,3),1);
-
-
-%% Define model
+%% Define model for PIGNN
 
 pignn = struct;
 numHiddenFeatureMaps1 = 16;
@@ -263,9 +280,11 @@ numIn = numHiddenFeatureMaps2;
 pignn.Decoder.Weights = initializeGlorot(sz,numOut,numIn,"double");
 pignn.Decoder.b = initializeZeros([1,numOut]);
 
-%% Training parameters
-nheadsparamnNLclass=load("nHead_nLay_GNN_4000.mat");
-paramNLclass=load("nLay_GNN_4000.mat");
+%% Specify Training Options. Training parameters
+% Load the pre-trained GNN model for constructability-awareness
+% Adjust according to where the models are located:
+nheadsparamnNLclass=load("nHead_nLay_GNN_MOConstrucT3_4000.mat");
+paramNLclass=load("nLay_GNN_MOConstrucT3_4000.mat");
 
 paramNL=paramNLclass.parameters;
 nheadsParamNL=nheadsparamnNLclass.numHeads;
@@ -282,17 +301,18 @@ XValidation = dlarray(XValidation);
 TTrain = labelsTrain;
 TValidation = labelsValidation;
 
-averageGrad = [];
-averageSqGrad = [];
-
-%numIterations = numEpochs;
-monitor = trainingProgressMonitor(Metrics=["TrainingLoss","ValidationLoss"], ...
-                                  Info="Epoch", ...
-                                  XLabel="Iteration");
-
-groupSubPlot(monitor,"Loss",["TrainingLoss","ValidationLoss"])
-%% Train PINN
-if doTrain
+%% Train model
+if doTraining
+    averageGrad = [];
+    averageSqGrad = [];
+    
+    monitor = trainingProgressMonitor(Metrics=["TrainingLoss","ValidationLoss"], ...
+                                      Info="Epoch", ...
+                                      XLabel="Iteration");
+    
+    groupSubPlot(monitor,"Loss",["TrainingLoss","ValidationLoss"])
+    %% Train PINN
+    
     NLTrain = modelNL(paramNL,XTrainPIGNN,ATrain,nheadsParamNL);
     epoch = 0;
     learningRate = initialLearnRate;
@@ -301,7 +321,7 @@ if doTrain
         epoch = epoch + 1;
         
         % Evaluate the model loss and gradients using dlfeval.
-        [loss(epoch),gradients] = dlfeval(@modelLossPIGNN1GAT1Conv1fc,pignn,...
+        [loss(epoch),gradients] = dlfeval(@modelLoss1GAT1Conv1fc,pignn,...
             XTrain,ATrain,TTrain,XTrainPIGNN,pdeCoeffsTrain,numHeads,NLTrain);
     
         % Update the network parameters using the adamupdate function.
@@ -322,31 +342,30 @@ if doTrain
             % Record the validation loss.
             recordMetrics(monitor,epoch,ValidationLoss=lossValidation(itervalid));
         end
-        
+    
         % Update learning rate.
         learningRate = initialLearnRate / (1+learnRateDecay*epoch);
     
         monitor.Progress = 100 * epoch/numEpochs;
     end      
-    
-    save('PIGCNN_As_Section_4000',"pignn")
-    save('nHeads_GAT_PIGNN_As_Section_4000','numHeads')
+    save('PIGCNN_As_Section_MOConstrucT3_4000',"pignn")
+    save('nHeads_GAT_PIGNN_As_Section_MOConstrucT3_4000','numHeads')
 else
-    nheadsparamnGATPIGNN=load("nHeads_GAT_PIGNN_As_Section_4000.mat");
-    paramPIGCNN=load("PIGCNN_As_Section_4000.mat");
+    nheadsparamnGATPIGNN=load("nHeads_GAT_PIGNN_As_Section_MOConstrucT3_4000.mat");
+    paramPIGCNN=load("PIGCNN_As_Section_MOConstrucT3_4000.mat");
 end
-
-%% Test
-% Get test labels
+%% Test model - Predict using unseen data
+% Test partition
 [ATest,~,labelsTest] = preprocessData(adjacencyDataTest,XBCTest1,AsDataTest);
 
-XTest=[XTest1];
 TTest = labelsTest;
-
-YTest = model1GAT1Conv1fc(pignn,XTestPIGNN,ATest,numHeads);
+if doTraining
+    YTest = model1GAT1Conv1fc(pignn,XTestPIGNN,ATest,numHeads);
+else
+    YTest = model1GAT1Conv1fc(paramPIGCNN.pignn,XTestPIGNN,ATest,nheadsparamnGATPIGNN.numHeads);
+end
 
 mre=[];
-
 YAo1=dlarray([]);
 Ypvt1=dlarray([]);
 YAo2=dlarray([]);
@@ -375,6 +394,8 @@ for i=1:nTest
 
     mre=[mre; MREC'];
     
+    %% TEST
+    
     % Gather test predictions and test labels
     YAo1=[YAo1; dlarray([BCU1Test(1,i)],"BC")];
     Ypvt1=[Ypvt1; dlarray([YTest(i1,1)],"BC")];
@@ -387,8 +408,10 @@ for i=1:nTest
 
 end
 
-
-% R coefficients
+%& R coefficients
+% Compute Regression coefficients for the three main cross-section of each 
+% test beam model
+%
 YAo1=extractdata(YAo1);
 Ypvt1=extractdata(Ypvt1);
 [BT1]=MLR2([[YAo1],[Ypvt1]],0);
@@ -425,6 +448,7 @@ disp(BT2(1))
 disp('R coefficient')
 disp(BT3(1))
 
+%% Regression plots
 % Define pastel colors
 pastel_gray = [0.663,0.663,0.663]; % #D3D3D3 for scatter points
 pastel_green = [0.537,0.812,0.941]; % #B5EAD7 for fit line
@@ -441,7 +465,7 @@ hold on
 legend(strcat('Data ','R = ',num2str(BT1(1))),'Y=T','Fit')
 xlabel('$Y$',interpreter='latex')
 ylabel('$\hat{Y}$',interpreter='latex')
-title({strcat('True Solution vs PIGNN ', ' solution:'),'Optimum rebar area of a Beam',...
+title({strcat('True vs PIGNN ', ' solution:'),'MLOCT-3','Optimum rebar area of a Beam',...
     'Left section'},interpreter='latex') 
 hold on
 grid on
@@ -460,7 +484,7 @@ hold on
 legend(strcat('Data ','R = ',num2str(BT2(1))),'Y=T','Fit')
 xlabel('$Y$',interpreter='latex')
 ylabel('$\hat{Y}$',interpreter='latex')
-title({strcat('True Solution vs PIGNN ', ' solution:'),'Optimum rebar area of a Beam',...
+title({strcat('True vs PIGNN ', ' solution:'),'MLOCT-3','Optimum rebar area of a Beam',...
     'Mid section'},interpreter='latex') 
 hold on
 grid on
@@ -478,21 +502,25 @@ hold on
 legend(strcat('Data ','R = ',num2str(BT3(1))),'Y=T','Fit')
 xlabel('$Y$',interpreter='latex')
 ylabel('$\hat{Y}$',interpreter='latex')
-title({strcat('True Solution vs PIGNN ', ' solution:'),'Optimum rebar area of a Beam',...
+title({strcat('True vs PIGNN ', ' solution:'),'MLOCT-3','Optimum rebar area of a Beam',...
     'Right section'},interpreter='latex') 
 hold on
 grid on
 axis([[0 4000],[0 2000]])
 set(gca, 'Fontname', 'Times New Roman','FontSize',18);
 
+%% MSE
 lossTest = mse(YTest,TTest,DataFormat="BC");
 disp('MSE')
 disp(lossTest)
 
+%% MRE
+MRE=sum(mre)/(3*nTest)
 %% Function appendix
 
 function Y = model1GAT1Conv1fc(parameters,X,A,numHeads)
 
+    
     ANorm = normalizeAdjacency(A);
     
     Z1 = X * parameters.Embed.Weights + parameters.Embed.b;
@@ -513,7 +541,7 @@ function Y = model1GAT1Conv1fc(parameters,X,A,numHeads)
     
 end
 
-function [loss,gradients] = modelLossPIGNN1GAT1Conv1fc(pinn,...
+function [loss,gradients] = modelLoss1GAT1Conv1fc(pinn,...
     XTrain,A,TTrain,XTrainNL,pdeCoeffs,numHeads,NL)
 
     U = model1GAT1Conv1fc(pinn,XTrainNL,A,numHeads);
@@ -1139,4 +1167,18 @@ XTest5 = (XTest5 - muX5)./sqrt(sigsqX5);
 XTest5 = dlarray(XTest5);
 
 XTest=[XTest1,XTest2,XTest3,XTest4,XTest5];
+end
+
+function [B]=MLR2(D,inter)
+
+n=length(D(:,1));
+p=length(D(1,:));
+if inter==1
+    X=[ones(n,1),D(:,1:p-1)];
+elseif inter==0
+    X=[D(:,1:p-1)];
+end
+Y=D(:,p);
+
+B=inv(X'*X)*X'*Y;
 end

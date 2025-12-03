@@ -1,13 +1,20 @@
 clc
 clear all
 
-%% GNN
-%A=importdata('/Users/lfvm94/Library/CloudStorage/OneDrive-HKUSTConnect/PhD/PhD_Research/MOO_ConstrucBased_Beams_HK/Enhanced_Data_MOO/Enhanced_Data_5LOT_HK_As_3400.xlsx');
-%A=importdata('C:\Users\luizv\OneDrive - HKUST Connect\PhD\PhD_Research\MOO_ConstrucBased_Beams_HK\Enhanced_Data_MOO\Enhanced_Data_5LOT_HK_As_3400.xlsx');
-%A=importdata('C:\Users\lfver\OneDrive - HKUST Connect\PhD\PhD_Research\MOO_ConstrucBased_Beams_HK\Enhanced_Data_MOO\Enhanced_Data_5LOT_HK_As_3400.xlsx');
-%A=importdata('/Users/lfvm94/Library/CloudStorage/OneDrive-HKUSTConnect/PhD/PhD_Research/MOO_ConstrucBased_Beams_HK/Enhanced_Data_MOO/Enhanced_Data_1LOT_HK_As_4000.xlsx');
-A=importdata('/Users/lfvm94/Library/CloudStorage/OneDrive-HKUSTConnect/PhD/PhD_Research/MOO_ConstrucBased_Beams_HK/Enhanced_Data_MOO/Enhanced_Data_1LOT_HK_Nb_Db_Simple_4000.xlsx');
-%A=importdata('C:\Users\luizv\OneDrive - HKUST Connect\PhD\PhD_Research\MOO_ConstrucBased_Beams_HK\Enhanced_Data_MOO\Enhanced_Data_1LOT_HK_Nb_Db_Simple_4000.xlsx');
+%% Plain GNN - Node regression - for optimization design of RC beams
+% This example shows how to train / test use plain GNNs for node regression 
+% of optimum amounts of rebar in beams' cross-sections.
+
+% Note: Training this network is a computationally intensive task. To make
+% the example run quicker, this example skips the training step and loads a
+% pretrained network. To instead train the network, set the doTraining 
+% variable to true.
+doTraining = false;
+
+%% Load Data
+% Give the path of the folder where the data is stored. 
+% Adjust it to your own path.
+A=importdata('C:/Users/luizv/OneDrive/CALDRECUST/Software/Package/CALDRECUST-MatLab/MatLab_functions/AI_CALDRECUST_MatLab/Datasets/Data_1LOT_HK_Nb_Db_Simple_4000.xlsx');
 
 DR1=A.data;
 
@@ -23,7 +30,6 @@ X = [DR(:,1:7)];
 
 %% Training 
 
-doTraining = true;
 
 numObservations=n;
 
@@ -44,27 +50,33 @@ numObservations=ceil(n);
 YN1=Y1(:,1); % Node 1: Left
 YN2=Y1(:,2); % Node 2: Right
 YN3=Y1(:,3); % Node 3: Middle
-%{
-muY1=mean(Y1(:,1));
-muY2=mean(Y1(:,2));
-muY3=mean(Y1(:,3));
 
-sigsqY1=var(Y1(:,1),1);
-sigsqY2=var(Y1(:,2),1);
-sigsqY3=var(Y1(:,3),1);
-%}
-muY1=0;
-muY2=0;
-muY3=0;
-
-sigsqY1=1;
-sigsqY2=1;
-sigsqY3=1;
-
+%  Change variable "targetNorm" to true if normalization of targets is 
+% required. Recommended only for Bayesian Optimization of hyperparameters
+targetNorm=false
+if targetNorm
+    muY1=mean(Y1(:,1));
+    muY2=mean(Y1(:,2));
+    muY3=mean(Y1(:,3));
+    
+    sigsqY1=var(Y1(:,1),1);
+    sigsqY2=var(Y1(:,2),1);
+    sigsqY3=var(Y1(:,3),1);
+else
+    muY1=0;
+    muY2=0;
+    muY3=0;
+    
+    sigsqY1=1;
+    sigsqY2=1;
+    sigsqY3=1;
+end
 YN1=(YN1-muY1)./sqrt(sigsqY1);
 YN2=(YN2-muY2)./sqrt(sigsqY2);
 YN3=(YN3-muY3)./sqrt(sigsqY3);
 
+% Input features
+X = [DR(:,1:7)];
 %% GNN architecture
 elements=[2 1;
           1 3];
@@ -82,35 +94,36 @@ for i = 1:size(elements,2)
     end
 end
 
-%% Features
+%% Process input features
 
 features1=[X(:,1),X(:,2),X(:,3),X(:,4),X(:,5)];
 features2=[X(:,1),X(:,2),X(:,3),X(:,4),X(:,6)];
 features3=[X(:,1),X(:,2),X(:,3),X(:,4),X(:,7)];
 
-coulombData1=zeros(numObservations,3,3);
-coulombData2=zeros(numObservations,3,3);
-coulombData3=zeros(numObservations,3,3);
-coulombData4=zeros(numObservations,3,3);
-coulombData5=zeros(numObservations,3,3);
+DataX1=zeros(numObservations,3,3);
+DataX2=zeros(numObservations,3,3);
+DataX3=zeros(numObservations,3,3);
+DataX4=zeros(numObservations,3,3);
+DataX5=zeros(numObservations,3,3);
 for i=1:numObservations
     features=[features1(i,:)',features2(i,:)',features3(i,:)'];
 
     for j=1:numNodesGNN
-        coulombData1(i,j,j)=features(1,j);
-        coulombData2(i,j,j)=features(2,j);
-        coulombData3(i,j,j)=features(3,j);
-        coulombData4(i,j,j)=features(4,j);
-        coulombData5(i,j,j)=features(5,j);
+        DataX1(i,j,j)=features(1,j);
+        DataX2(i,j,j)=features(2,j);
+        DataX3(i,j,j)=features(3,j);
+        DataX4(i,j,j)=features(4,j);
+        DataX5(i,j,j)=features(5,j);
     end
 end
 
-coulombData1 = double(permute(coulombData1, [2 3 1]));
-coulombData2 = double(permute(coulombData2, [2 3 1]));
-coulombData3 = double(permute(coulombData3, [2 3 1]));
-coulombData4 = double(permute(coulombData4, [2 3 1]));
-coulombData5 = double(permute(coulombData5, [2 3 1]));
+DataX1 = double(permute(DataX1, [2 3 1]));
+DataX2 = double(permute(DataX2, [2 3 1]));
+DataX3 = double(permute(DataX3, [2 3 1]));
+DataX4 = double(permute(DataX4, [2 3 1]));
+DataX5 = double(permute(DataX5, [2 3 1]));
 
+% Process Targets
 nodesAb1 = [YN1(:,1),YN2(:,1),YN3(:,1)];
 
 nodesAb1to6=[nodesAb1];
@@ -129,25 +142,25 @@ adjacencyDataValidation = adjacency(:,:,idxValidation);
 adjacencyDataTest = adjacency(:,:,idxTest);
 
 % feature data
-coulombDataTrain1 = coulombData1(:,:,idxTrain);
-coulombDataValidation1 = coulombData1(:,:,idxValidation);
-coulombDataTest1 = coulombData1(:,:,idxTest);
+DataXTrain1 = DataX1(:,:,idxTrain);
+DataXValidation1 = DataX1(:,:,idxValidation);
+DataXTest1 = DataX1(:,:,idxTest);
 
-coulombDataTrain2 = coulombData2(:,:,idxTrain);
-coulombDataValidation2 = coulombData2(:,:,idxValidation);
-coulombDataTest2 = coulombData2(:,:,idxTest);
+DataXTrain2 = DataX2(:,:,idxTrain);
+DataXValidation2 = DataX2(:,:,idxValidation);
+DataXTest2 = DataX2(:,:,idxTest);
 
-coulombDataTrain3 = coulombData3(:,:,idxTrain);
-coulombDataValidation3 = coulombData3(:,:,idxValidation);
-coulombDataTest3 = coulombData3(:,:,idxTest);
+DataXTrain3 = DataX3(:,:,idxTrain);
+DataXValidation3 = DataX3(:,:,idxValidation);
+DataXTest3 = DataX3(:,:,idxTest);
 
-coulombDataTrain4 = coulombData4(:,:,idxTrain);
-coulombDataValidation4 = coulombData4(:,:,idxValidation);
-coulombDataTest4 = coulombData4(:,:,idxTest);
+DataXTrain4 = DataX4(:,:,idxTrain);
+DataXValidation4 = DataX4(:,:,idxValidation);
+DataXTest4 = DataX4(:,:,idxTest);
 
-coulombDataTrain5 = coulombData5(:,:,idxTrain);
-coulombDataValidation5 = coulombData5(:,:,idxValidation);
-coulombDataTest5 = coulombData5(:,:,idxTest);
+DataXTrain5 = DataX5(:,:,idxTrain);
+DataXValidation5 = DataX5(:,:,idxValidation);
+DataXTest5 = DataX5(:,:,idxTest);
 
 % target data
 AsDataTrain = nodesAb1to6(idxTrain,:);
@@ -156,18 +169,18 @@ AsDataTest = nodesAb1to6(idxTest,:);
 
 % Train partition
 
-[ATrain,XTrain1,labelsTrain] = preprocessData(adjacencyDataTrain,coulombDataTrain1,AsDataTrain);
-[~,XTrain2,~] = preprocessData(adjacencyDataTrain,coulombDataTrain2,AsDataTrain);
-[~,XTrain3,~] = preprocessData(adjacencyDataTrain,coulombDataTrain3,AsDataTrain);
-[~,XTrain4,~] = preprocessData(adjacencyDataTrain,coulombDataTrain4,AsDataTrain);
-[~,XTrain5,~] = preprocessData(adjacencyDataTrain,coulombDataTrain5,AsDataTrain);
+[ATrain,XTrain1,labelsTrain] = preprocessData(adjacencyDataTrain,DataXTrain1,AsDataTrain);
+[~,XTrain2,~] = preprocessData(adjacencyDataTrain,DataXTrain2,AsDataTrain);
+[~,XTrain3,~] = preprocessData(adjacencyDataTrain,DataXTrain3,AsDataTrain);
+[~,XTrain4,~] = preprocessData(adjacencyDataTrain,DataXTrain4,AsDataTrain);
+[~,XTrain5,~] = preprocessData(adjacencyDataTrain,DataXTrain5,AsDataTrain);
 
 % Validation partition
-[AValidation,XValidation1,labelsValidation] = preprocessData(adjacencyDataValidation,coulombDataValidation1,AsDataValidation);
-[~,XValidation2,~] = preprocessData(adjacencyDataValidation,coulombDataValidation2,AsDataValidation);
-[~,XValidation3,~] = preprocessData(adjacencyDataValidation,coulombDataValidation3,AsDataValidation);
-[~,XValidation4,~] = preprocessData(adjacencyDataValidation,coulombDataValidation4,AsDataValidation);
-[~,XValidation5,~] = preprocessData(adjacencyDataValidation,coulombDataValidation5,AsDataValidation);
+[AValidation,XValidation1,labelsValidation] = preprocessData(adjacencyDataValidation,DataXValidation1,AsDataValidation);
+[~,XValidation2,~] = preprocessData(adjacencyDataValidation,DataXValidation2,AsDataValidation);
+[~,XValidation3,~] = preprocessData(adjacencyDataValidation,DataXValidation3,AsDataValidation);
+[~,XValidation4,~] = preprocessData(adjacencyDataValidation,DataXValidation4,AsDataValidation);
+[~,XValidation5,~] = preprocessData(adjacencyDataValidation,DataXValidation5,AsDataValidation);
 
 %% Normalizing training data
 muX1 = mean(XTrain1);
@@ -198,6 +211,7 @@ XValidation5 = (XValidation5 - muX5)./sqrt(sigsqX5);
 XTrain=[XTrain1,XTrain2,XTrain3,XTrain4,XTrain5];
 XValidation=[XValidation1,XValidation2,XValidation3,XValidation4,XValidation5];
 
+%% Define model's architecture
 parameters = struct;
 numHiddenFeatureMaps1 = 16;
 numHiddenFeatureMaps2 = 16;
@@ -239,7 +253,7 @@ numIn = numHiddenFeatureMaps2;
 parameters.Decoder.Weights = initializeGlorot(sz,numOut,numIn,"double");
 parameters.Decoder.b = initializeZeros([1,numOut]);
 
-%% Training
+%% Define training parameters
 
 nbatches=1;
 
@@ -249,107 +263,116 @@ initialLearnRate = 0.005/sqrt(nbatches);
 learnRateDecay = 0.001;
 validationFrequency = 5;
 
-trailingAvg = [];
-trailingAvgSq = [];
-XTrain = dlarray(XTrain);
-XValidation = dlarray(XValidation);
-
-TTrain = labelsTrain;
-TValidation = labelsValidation;
-
-ngraphsTrain=size(XTrain,1)/3;
-ngraphsBatchTrain=fix(ngraphsTrain/nbatches);
-nnodesBatchTrain=ngraphsBatchTrain*3;
-
-dsTrain=cell(nbatches,2);
-
-for i=1:nbatches
-    i1=(i-1)*nnodesBatchTrain+1;
-    i2=(i)*nnodesBatchTrain;
-
-    dsTrain{i,1}=XTrain(i1:i2,:);
-    dsTrain{i,2}=TTrain(i1:i2,:);
-end
-
-monitor = trainingProgressMonitor( ...
-    Metrics=["TrainingLoss","ValidationLoss"], ...
-    Info="Epoch", ...
-    XLabel="Epoch");
-
-groupSubPlot(monitor,"Loss",["TrainingLoss","ValidationLoss"])
-epoch = 0;
-iteration = 0;
-learningRate = initialLearnRate;
-while epoch < numEpochs && ~monitor.Stop
-    epoch = epoch + 1;
-    for j = 1:  nbatches
-        iteration = iteration + 1;
-        
-        XTrain=dsTrain{j,1};
-        TTrain=dsTrain{j,2};
-        ATrain = sparse([]);
-
-        ngraphsBatchTrain = nnodesBatchTrain/3;
-        for i=1:ngraphsBatchTrain
-            A=adjacencyDataTrain(:,:,i);
-            ATrain = blkdiag(ATrain,A);
-        end
-
-        % Evaluate the model loss and gradients.
-        [loss(iteration),gradients] = dlfeval(@modelLoss1fc2Gat1Conv1fc,parameters,XTrain,ATrain,TTrain,numHeads);
+%% Begin training
+if doTraining
+    trailingAvg = [];
+    trailingAvgSq = [];
+    XTrain = dlarray(XTrain);
+    XValidation = dlarray(XValidation);
     
-        % Update the network parameters using the Adam optimizer.
-        [parameters,trailingAvg,trailingAvgSq] = adamupdate(parameters,gradients, ...
-            trailingAvg,trailingAvgSq,iteration,initialLearnRate);
+    TTrain = labelsTrain;
+    TValidation = labelsValidation;
     
-        % Record the training loss and epoch.
-        recordMetrics(monitor,iteration,TrainingLoss=loss(iteration));
+    ngraphsTrain=size(XTrain,1)/3;
+    ngraphsBatchTrain=fix(ngraphsTrain/nbatches);
+    nnodesBatchTrain=ngraphsBatchTrain*3;
     
-        % Display the validation metrics.
-        if iteration == 1 || mod(iteration,validationFrequency) == 0
-            YValidation = model1FC2GAT1Conv1FC(parameters,XValidation,AValidation,numHeads);
-            
-            lossValidation(iteration) = mse(YValidation,TValidation,DataFormat="BC");
-            
-            % Record the validation loss.
-            recordMetrics(monitor,iteration,ValidationLoss=lossValidation(iteration));
-        end
+    dsTrain=cell(nbatches,2);
+    
+    for i=1:nbatches
+        i1=(i-1)*nnodesBatchTrain+1;
+        i2=(i)*nnodesBatchTrain;
+    
+        dsTrain{i,1}=XTrain(i1:i2,:);
+        dsTrain{i,2}=TTrain(i1:i2,:);
     end
-
-    idx=randperm(nbatches);
-    dsTrain=dsTrain(idx,:);
-
-    updateInfo(monitor,Epoch=(epoch+" of "+numEpochs));
-    learningRate = initialLearnRate / (1+learnRateDecay*epoch);
-    monitor.Progress = 100*(epoch/numEpochs);
+    
+    monitor = trainingProgressMonitor( ...
+        Metrics=["TrainingLoss","ValidationLoss"], ...
+        Info="Epoch", ...
+        XLabel="Epoch");
+    
+    groupSubPlot(monitor,"Loss",["TrainingLoss","ValidationLoss"])
+    epoch = 0;
+    iteration = 0;
+    learningRate = initialLearnRate;
+    while epoch < numEpochs && ~monitor.Stop
+        epoch = epoch + 1;
+        for j = 1:  nbatches
+            iteration = iteration + 1;
+            
+            XTrain=dsTrain{j,1};
+            TTrain=dsTrain{j,2};
+            ATrain = sparse([]);
+    
+            ngraphsBatchTrain = nnodesBatchTrain/3;
+            for i=1:ngraphsBatchTrain
+                A=adjacencyDataTrain(:,:,i);
+                ATrain = blkdiag(ATrain,A);
+            end
+    
+            % Evaluate the model loss and gradients.
+            [loss(iteration),gradients] = dlfeval(@modelLoss1fc2Gat1Conv1fc,parameters,XTrain,ATrain,TTrain,numHeads);
+        
+            % Update the network parameters using the Adam optimizer.
+            [parameters,trailingAvg,trailingAvgSq] = adamupdate(parameters,gradients, ...
+                trailingAvg,trailingAvgSq,iteration,initialLearnRate);
+        
+            % Record the training loss and epoch.
+            recordMetrics(monitor,iteration,TrainingLoss=loss(iteration));
+        
+            % Display the validation metrics.
+            if iteration == 1 || mod(iteration,validationFrequency) == 0
+                YValidation = model1FC2GAT1Conv1FC(parameters,XValidation,AValidation,numHeads);
+                
+                lossValidation(iteration) = mse(YValidation,TValidation,DataFormat="BC");
+                
+                % Record the validation loss.
+                recordMetrics(monitor,iteration,ValidationLoss=lossValidation(iteration));
+            end
+        end
+    
+        idx=randperm(nbatches);
+        dsTrain=dsTrain(idx,:);
+    
+        updateInfo(monitor,Epoch=(epoch+" of "+numEpochs));
+        learningRate = initialLearnRate / (1+learnRateDecay*epoch);
+        monitor.Progress = 100*(epoch/numEpochs);
+    end
+    
+    save('GCNN_As_Section_4000','parameters')
+    save('nHeads_GAT_GCNN_As_Section_4000','numHeads')
+else
+    nheadsparamnGATGNN=load("nHeads_GAT_GCNN_As_Section_4000.mat");
+    paramPIGNN=load("GCNN_As_Section_4000.mat");
 end
-
-save('GCNN_As_Section_4000','parameters')
-save('nHeads_GAT_GCNN_As_Section_4000','numHeads')
-
-%% Test model
-[ATest,XTest1,labelsTest] = preprocessData(adjacencyDataTest,coulombDataTest1,AsDataTest);
+%% Test model on unseen data
+[ATest,XTest1,labelsTest] = preprocessData(adjacencyDataTest,DataXTest1,AsDataTest);
 XTest1 = (XTest1 - muX1)./sqrt(sigsqX1);
 XTest1 = dlarray(XTest1);
 
-[~,XTest2,~] = preprocessData(adjacencyDataTest,coulombDataTest2,AsDataTest);
+[~,XTest2,~] = preprocessData(adjacencyDataTest,DataXTest2,AsDataTest);
 XTest2 = (XTest2 - muX2)./sqrt(sigsqX2);
 XTest2 = dlarray(XTest2);
 
-[~,XTest3,~] = preprocessData(adjacencyDataTest,coulombDataTest3,AsDataTest);
+[~,XTest3,~] = preprocessData(adjacencyDataTest,DataXTest3,AsDataTest);
 XTest3 = (XTest3 - muX3)./sqrt(sigsqX3);
 XTest3 = dlarray(XTest3);
 
-[~,XTest4,~] = preprocessData(adjacencyDataTest,coulombDataTest4,AsDataTest);
+[~,XTest4,~] = preprocessData(adjacencyDataTest,DataXTest4,AsDataTest);
 XTest4 = (XTest4 - muX4)./sqrt(sigsqX4);
 XTest4 = dlarray(XTest4);
 
-[~,XTest5,~] = preprocessData(adjacencyDataTest,coulombDataTest5,AsDataTest);
+[~,XTest5,~] = preprocessData(adjacencyDataTest,DataXTest5,AsDataTest);
 XTest5 = (XTest5 - muX5)./sqrt(sigsqX5);
 XTest5 = dlarray(XTest5);
 
 XTest=[XTest1,XTest2,XTest3,XTest4,XTest5];
-YTest = model1FC2GAT1Conv1FC(parameters,XTest,ATest,numHeads);
+if doTraining
+    YTest = model1FC2GAT1Conv1FC(parameters,XTest,ATest,numHeads);
+else
+    YTest = model1FC2GAT1Conv1FC(paramPIGNN.parameters,XTest,ATest,nheadsparamnGATGNN.numHeads);
+end
 
 % Denormalizing targets and outputs
 ntest=length(idxTest);
@@ -367,10 +390,7 @@ for i=1:ntest
 end
 %% Performance assessment
 
-
 mre = [];
-wc=0;
-bc=0;
 YAo1=dlarray([]);
 Ypvt1=dlarray([]);
 YAo2=dlarray([]);
@@ -405,14 +425,8 @@ for i=1:ntest
 
     % MRE
     mre=[mre; MREc'];
-    for j=1:3
-        if MREc(j)<0.1
-            wc=wc+1;
-        else
-            bc=bc+1;
-        end
-    end
-    % R coefficient
+
+    % Gather predictions and labels
     YAo1=[YAo1; dlarray([Ytl(i,1)],"BC")];
     Ypvt1=[Ypvt1; dlarray([Ypred(i,1)],"BC")];
 
@@ -426,14 +440,11 @@ MRE=sum(mre)/(3*ntest);
 disp('MRE')
 disp(MRE)
 
-disp('Accuracy')
-acc=wc/(3*ntest);
-disp(acc)
-
 lossTest = mse(YTest,labelsTest,DataFormat="BC");
 disp('MSE')
 disp(lossTest)
 
+%% Regression coeficients
 YAo1=extractdata(YAo1);
 Ypvt1=extractdata(Ypvt1);
 [BT1]=MLR2([[YAo1],[Ypvt1]],0);
@@ -470,6 +481,7 @@ disp(BT2(1))
 disp('R coefficient - Right cross-section')
 disp(BT3(1))
 
+%% Regresion plots
 % Define pastel colors
 pastel_gray = [0.663,0.663,0.663]; % #D3D3D3 for scatter points
 pastel_green = [0.537,0.812,0.941]; % #B5EAD7 for fit line
@@ -486,12 +498,12 @@ hold on
 legend(strcat('Data ','R = ',num2str(BT1(1))),'Y=T','Fit')
 xlabel('$Y$',interpreter='latex')
 ylabel('$\hat{Y}$',interpreter='latex')
-title({strcat('True Solution vs GNN ', ' solution:'),'Optimum rebar area of a Beam',...
+title({strcat('True vs GNN ', ' solution:'),'Optimum rebar area of a Beam',...
     'Left section'},interpreter='latex') 
 hold on
 grid on
 axis([[0 4000],[0 2000]])
-set(gca, 'Fontname', 'Times New Roman','FontSize',18);
+set(gca, 'Fontname', 'Times New Roman','FontSize',12);
 
 
 figure(9)
@@ -505,12 +517,12 @@ hold on
 legend(strcat('Data ','R = ',num2str(BT2(1))),'Y=T','Fit')
 xlabel('$Y$',interpreter='latex')
 ylabel('$\hat{Y}$',interpreter='latex')
-title({strcat('True Solution vs GNN ', ' solution:'),'Optimum rebar area of a Beam',...
+title({strcat('True vs GNN ', ' solution:'),'Optimum rebar area of a Beam',...
     'Mid section'},interpreter='latex') 
 hold on
 grid on
 axis([[0 3000],[0 2000]])
-set(gca, 'Fontname', 'Times New Roman','FontSize',18);
+set(gca, 'Fontname', 'Times New Roman','FontSize',12);
 
 figure(9)
 subplot(1,3,3)
@@ -523,12 +535,12 @@ hold on
 legend(strcat('Data ','R = ',num2str(BT3(1))),'Y=T','Fit')
 xlabel('$Y$',interpreter='latex')
 ylabel('$\hat{Y}$',interpreter='latex')
-title({strcat('True Solution vs GNN ', ' solution:'),'Optimum rebar area of a Beam',...
+title({strcat('True vs GNN ', ' solution:'),'Optimum rebar area of a Beam',...
     'Right section'},interpreter='latex') 
 hold on
 grid on
 axis([[0 4000],[0 2000]])
-set(gca, 'Fontname', 'Times New Roman','FontSize',18);
+set(gca, 'Fontname', 'Times New Roman','FontSize',12);
 
 %% Function appendix
 
@@ -593,12 +605,6 @@ function [loss,gradients] = modelLoss1fc2Gat1Conv1fc(parameters,X,A,T,numHeads)
     
     loss = mse(Y,T,DataFormat="BC");
     gradients = dlgradient(loss, parameters);
-
-end
-
-function y = elu(x)
-
-y = max(0, x) + (exp(min(0, x)) -1);
 
 end
 
@@ -728,4 +734,19 @@ if sum(v,"all") ~= 1
     error("Value must sum to one.")
 end
 
+end
+
+
+function [B]=MLR2(D,inter)
+    
+    n=length(D(:,1));
+    p=length(D(1,:));
+    if inter==1
+        X=[ones(n,1),D(:,1:p-1)];
+    elseif inter==0
+        X=[D(:,1:p-1)];
+    end
+    Y=D(:,p);
+    
+    B=inv(X'*X)*X'*Y;
 end
