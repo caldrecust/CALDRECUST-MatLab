@@ -1,6 +1,6 @@
 
 
-# CPyRO-GraphNet-Beams
+# CPyRO-GraphNet-Beams MATLAB
 Constructabilty-aware Physics-Informed Graph Neural Network for Rebar Optimization Design in Concrete Beams 
 
 # INSTALLATION INSTRUCTIONS
